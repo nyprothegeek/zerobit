@@ -1,0 +1,57 @@
+repos:
+  - repo: local
+    hooks:
+      - id: fmt
+        name: Formatting
+        description: Format code
+        entry: poetry run black zero cli tests
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: type-check
+        name: Type Checking
+        description: Check the package for type related errors
+        entry: poetry run mypy zero cli tests --strict
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: lint
+        name: Linting
+        description: Check for lint errors and warnings
+        entry: poetry run pylint zero cli tests
+        language: system
+        types: [python]
+        pass_filenames: false
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v2.1.1
+    hooks:
+      - id: conventional-pre-commit
+        stages:
+          - commit-msg
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-merge-conflict
+
+      - id: trailing-whitespace
+
+      - id: end-of-file-fixer
+
+      - id: check-yaml
+        exclude: ^catalog-info.yaml
+
+      - id: check-json
+        exclude: ^tests/data/
+
+      - id: check-added-large-files
+
+      - id: detect-private-key
+        exclude: ^tests/.*
+
+      - id: check-executables-have-shebangs
+
+      - id: check-toml
