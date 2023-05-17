@@ -1,16 +1,16 @@
 [package]
-name = "zero"
+name = "zerobit"
 version = "0.1.0"
 description = "The Generalist Agent Framework"
 keywords = []
 categories = []
-
+license = "Apache-2.0"
 include = ["/src", "/benches", "README.md"]
 readme = "README.md"
 edition = "2021"
 rust-version = "1.64"
-documentation = "https://docs.rs/zero"
-repository = "https://github.com/orble-ai/Zero"
+documentation = "https://docs.rs/zerobit"
+repository = "https://github.com/appcypher/zerobit"
 authors = ["Stephen Akinyemi <appcypher@outlook.com>"]
 
 [lib]
@@ -19,7 +19,7 @@ bench = false
 doctest = true
 
 [[bin]]
-name = "zero"
+name = "zerobit"
 path = "src/main.rs"
 doc = false
 bench = false

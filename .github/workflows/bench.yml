@@ -2,10 +2,10 @@ name: 📈 Benchmark
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
   pull_request:
-    branches: [ '**' ]
+    branches: ["**"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -48,11 +48,11 @@ jobs:
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: Rust Benchmark
-          tool: 'cargo'
+          tool: "cargo"
           output-file-path: output.txt
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: ${{ github.event_name == 'push' && github.repository == 'orble-ai/Zero' && github.ref == 'refs/heads/main' }}
-          alert-threshold: '200%'
+          auto-push: ${{ github.event_name == 'push' && github.repository == 'appcypher/zerobit' && github.ref == 'refs/heads/main' }}
+          alert-threshold: "200%"
           comment-on-alert: true
           fail-on-alert: true
-          alert-comment-cc-users: '@appcypher'
+          alert-comment-cc-users: "@appcypher"

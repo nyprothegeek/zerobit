@@ -1,21 +1,24 @@
 <div align="center">
-  <a href="https://github.com/orble-ai/Zero" target="_blank">
-    <img src="https://raw.githubusercontent.com/orble-ai/Zero/main/assets/a_logo.png" alt="Zero Logo" width="100"></img>
+  <a href="https://github.com/appcypher/zerobit" target="_blank">
+    <img src="https://raw.githubusercontent.com/appcypher/zerobit/main/assets/a_logo.png" alt="zerobit Logo" width="100"></img>
   </a>
 
-  <h1 align="center">zero</h1>
+  <h1 align="center">zerobit</h1>
 
   <p>
-    <a href="https://crates.io/crates/zero">
-      <img src="https://img.shields.io/crates/v/Zero?label=crates" alt="Crate">
+    <a href="https://crates.io/crates/zerobit">
+      <img src="https://img.shields.io/crates/v/zerobit?label=crates" alt="Crate">
     </a>
-    <a href="https://codecov.io/gh/orble-ai/Zero">
-      <img src="https://codecov.io/gh/orble-ai/Zero/branch/main/graph/badge.svg?token=SOMETOKEN" alt="Code Coverage"/>
+    <a href="https://codecov.io/gh/appcypher/zerobit">
+      <img src="https://codecov.io/gh/appcypher/zerobit/branch/main/graph/badge.svg?token=SOMETOKEN" alt="Code Coverage"/>
     </a>
-    <a href="https://github.com/orble-ai/Zero/actions?query=">
-      <img src="https://github.com/orble-ai/Zero/actions/workflows/tests_and_checks.yml/badge.svg" alt="Build Status">
+    <a href="https://github.com/appcypher/zerobit/actions?query=">
+      <img src="https://github.com/appcypher/zerobit/actions/workflows/tests_and_checks.yml/badge.svg" alt="Build Status">
     </a>
-    <a href="https://docs.rs/zero">
+    <a href="https://github.com/appcypher/zerobit/blob/main/LICENSE">
+      <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
+    </a>
+    <a href="https://docs.rs/zerobit">
       <img src="https://img.shields.io/static/v1?label=Docs&message=docs.rs&color=blue" alt="Docs">
     </a>
     <a href="https://discord.gg/WqTEScR4">
@@ -36,13 +39,14 @@
 - [Contributing](#contributing)
 - [Getting Help](#getting-help)
 - [External Resources](#external-resources)
+- [License](#license)
 
 ## Installation
 
 ### Using `cargo`
 
 ```console
-cargo install zero
+cargo install zerobit
 ```
 
 ## Testing the Project
@@ -97,7 +101,7 @@ hooks. Please run this before every commit and/or push.
 
 ### Conventional Commits
 
-This project *lightly* follows the [Conventional Commits
+This project _lightly_ follows the [Conventional Commits
 convention][commit-spec-site] to help explain
 commit history and tie in with our release process. The full specification
 can be found [here][commit-spec]. We recommend prefixing your commits with
@@ -121,6 +125,11 @@ We would be happy to try to answer your question or try opening a new issue on G
 
 These are references to specifications, talks and presentations, etc.
 
+## License
+
+This project is licensed under the [Apache License 2.0][apache-license].
+
+[apache-license]: https://github.com/appcypher/zerobit/blob/main/LICENSE
 [cargo-expand]: https://github.com/dtolnay/cargo-expand
 [cargo-udeps]: https://github.com/est31/cargo-udeps
 [cargo-watch]: https://github.com/watchexec/cargo-watch
