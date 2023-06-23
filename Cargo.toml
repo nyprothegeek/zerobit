@@ -10,7 +10,7 @@ readme = "README.md"
 edition = "2021"
 rust-version = "1.64"
 documentation = "https://docs.rs/zerobit"
-repository = "https://github.com/appcypher/zerobit"
+repository = "https://github.com/nyprothegeek/zerobit"
 authors = ["Stephen Akinyemi <appcypher@outlook.com>"]
 
 [lib]
