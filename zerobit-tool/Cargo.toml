@@ -1,0 +1,29 @@
+[package]
+name = "zerobit-tool"
+version = "0.1.0"
+description = "Tools for working with zerobit agents"
+keywords = []
+categories = []
+license = "Apache-2.0"
+readme = "README.md"
+edition = "2021"
+rust-version = "1.64"
+documentation = "https://docs.rs/zerobit"
+repository = "https://github.com/nyprothegeek/zerobit"
+authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
+
+[lib]
+path = "src/lib.rs"
+bench = false
+doctest = true
+
+[dependencies]
+anyhow = "1.0"
+async-trait = "0.1.68"
+derive_builder = "0.12.0"
+proptest = { version = "1.2", optional = true }
+serde = { version = "1.0.164", features = ["derive"] }
+
+[features]
+default = []
+test_utils = ["proptest"]
