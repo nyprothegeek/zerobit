@@ -1,5 +1,9 @@
 use anyhow::Result;
-use zerobit_model::{openai::OpenAIModel, Model};
+use futures_util::StreamExt;
+use zerobit_model::{
+    openai::{ChatModelStream, OpenAIModel},
+    Model,
+};
 
 //-------------------------------------------------------------------------------------------------
 // Main
@@ -11,9 +15,14 @@ async fn main() -> Result<()> {
     env_logger::init();
 
     let model = OpenAIModel::default();
-    let string: String = model.prompt("Hello there!").await?;
+    let mut stream = model
+        .prompt::<ChatModelStream>("Hello there!")
+        .await?
+        .enumerate();
 
-    println!("string = {string:#?}");
+    while let Some((index, output)) = stream.next().await {
+        println!("output {index} = {:#?}", output?);
+    }
 
     Ok(())
 }

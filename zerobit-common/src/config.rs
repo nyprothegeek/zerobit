@@ -4,4 +4,4 @@ use serde::{Deserialize, Serialize};
 // Types
 //-------------------------------------------------------------------------------------------------
 
-pub trait Config: Serialize + Deserialize<'static> + Default {}
+pub trait Config: Serialize + Deserialize<'static> + Default + Clone {}

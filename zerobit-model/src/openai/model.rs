@@ -1,21 +1,25 @@
 //! This module contains implementations of OpenAI models.
 
-use std::{env, fmt::Debug};
-
-use super::{ChatConfig, ChatModel, CompletionModel, ModelType, OpenAIConfig, OutputStream};
-use crate::traits::{Model, Output};
-use anyhow::Result;
+use super::{
+    ChatConfig, ChatModel, ChatModelStream, CompletionConfig, CompletionModel,
+    CompletionModelStream, ModelType, OpenAIConfig,
+};
+use crate::{
+    openai::{APIError, OpenAIError},
+    traits::{Model, Output},
+    ModelError,
+};
 use async_trait::async_trait;
 use derivative::Derivative;
 use reqwest::{header::AUTHORIZATION, Client};
+use reqwest_eventsource::RequestBuilderExt;
 use serde::{Deserialize, Serialize};
+use std::{env, fmt::Debug};
 use strum_macros::Display;
 
 //-------------------------------------------------------------------------------------------------
 // Aliases
 //-------------------------------------------------------------------------------------------------
-
-pub type StringStream = OutputStream<String>;
 
 pub type OpenAICompletionModel = OpenAI<CompletionModel>;
 pub type OpenAIChatModel = OpenAI<ChatModel>;
@@ -42,32 +46,30 @@ where
     api_key: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ChatChoice {
+    pub index: u64,
     pub message: ChatMessage,
-    pub index: u8,
     pub finish_reason: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct CompletionChoice {
-    pub index: u8,
+    pub index: u64,
     pub text: String,
     pub logprobs: Option<u8>,
     pub finish_reason: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Display)]
+#[serde(rename_all = "snake_case")]
 pub enum ChatRole {
-    #[serde(rename = "system")]
     #[strum(serialize = "system")]
     System,
 
-    #[serde(rename = "user")]
     #[strum(serialize = "user")]
     User,
 
-    #[serde(rename = "assistant")]
     #[strum(serialize = "assistant")]
     Assistant,
 }
@@ -78,7 +80,7 @@ pub struct ChatMessage {
     pub content: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ModelResponse<T> {
     pub id: String,
     pub object: String,
@@ -87,7 +89,7 @@ pub struct ModelResponse<T> {
     pub choices: Vec<T>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Default)]
 pub struct ChatBody {
     pub messages: Vec<ChatMessage>,
 
@@ -95,10 +97,10 @@ pub struct ChatBody {
     pub stream: Option<bool>,
 
     #[serde(flatten)]
-    pub attributes: ChatConfig,
+    pub config: ChatConfig,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Default)]
 pub struct CompletionBody {
     pub prompt: String,
 
@@ -106,7 +108,7 @@ pub struct CompletionBody {
     pub stream: Option<bool>,
 
     #[serde(flatten)]
-    pub attributes: ChatConfig,
+    pub config: CompletionConfig,
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -139,7 +141,10 @@ where
 impl OpenAIChatModel {
     // TODO(nyprothegeek): Support stream.
     /// Sends a request to the OpenAI API to get a completion.
-    pub async fn get_completion(&self, _messages: Vec<ChatMessage>) -> Result<ChatModelResponse> {
+    pub async fn get_completion(
+        &self,
+        _messages: Vec<ChatMessage>,
+    ) -> Result<ChatModelResponse, OpenAIError> {
         todo!()
     }
 }
@@ -150,7 +155,7 @@ impl OpenAICompletionModel {
     pub async fn get_completion(
         &self,
         _prompt: impl Into<String>,
-    ) -> Result<CompletionModelResponse> {
+    ) -> Result<CompletionModelResponse, OpenAIError> {
         todo!()
     }
 }
@@ -164,24 +169,38 @@ impl<M> Model for OpenAI<M>
 where
     M: ModelType,
 {
-    type Error = anyhow::Error;
+    type Config = M::Config;
 
-    async fn prompt<O>(&self, prompt: impl Into<String>) -> Result<O>
+    async fn prompt<O>(&self, prompt: impl Into<String>) -> Result<O, ModelError>
     where
-        O: Output<Self> + Debug,
+        O: Output<Self>,
     {
-        let output = O::from_call(prompt, self).await?;
+        O::from_call(prompt, self).await
+    }
 
-        #[cfg(feature = "log")]
-        log::debug!("output = {output:?}");
+    async fn prompt_with_config<O>(
+        &self,
+        prompt: String,
+        config: Self::Config,
+    ) -> Result<O, ModelError>
+    where
+        O: Output<Self>,
+    {
+        O::from_call_with_config(prompt, self, config).await
+    }
 
-        Ok(output)
+    fn get_config(&self) -> &Self::Config {
+        &self.config
     }
 }
 
 #[async_trait(?Send)]
 impl Output<OpenAIChatModel> for String {
-    async fn from_call(prompt: impl Into<String>, model: &OpenAIChatModel) -> Result<Self> {
+    async fn from_call_with_config(
+        prompt: impl Into<String>,
+        model: &OpenAIChatModel,
+        config: ChatConfig,
+    ) -> Result<Self, ModelError> {
         let request = Client::new()
             .post(model.config.get_url())
             .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
@@ -190,54 +209,120 @@ impl Output<OpenAIChatModel> for String {
                     content: prompt.into(),
                     role: ChatRole::User,
                 }],
+                config,
                 ..Default::default()
             });
 
-        // let response = request.send().await?.json::<ChatModelResponse>().await?;
+        let response = request.send().await.map_err(OpenAIError::Reqwest)?;
 
-        // Ok(response.choices[0].message.content.clone());
+        if !response.status().is_success() {
+            let error: APIError = response.json().await.map_err(OpenAIError::Reqwest)?;
+            return Err(OpenAIError::API(error).into());
+        }
 
-        // TODO(nyprothegeek): Handle errors.
-        let text_response = request.send().await?.text().await?;
+        let response: ChatModelResponse = response.json().await.map_err(OpenAIError::Reqwest)?;
 
-        Ok(text_response)
+        #[cfg(feature = "log")]
+        log::debug!("response: {response:#?}");
+
+        Ok(response
+            .choices
+            .get(0)
+            .ok_or(OpenAIError::CompletionMissing)?
+            .message
+            .content
+            .clone())
     }
 }
 
 #[async_trait(?Send)]
 impl Output<OpenAICompletionModel> for String {
-    async fn from_call(prompt: impl Into<String>, model: &OpenAICompletionModel) -> Result<Self> {
+    async fn from_call_with_config(
+        prompt: impl Into<String>,
+        model: &OpenAICompletionModel,
+        config: CompletionConfig,
+    ) -> Result<Self, ModelError> {
         let request = Client::new()
             .post(model.config.get_url())
             .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
             .json(&CompletionBody {
                 prompt: prompt.into(),
+                config,
                 ..Default::default()
             });
 
-        // let response = request
-        //     .send()
-        //     .await?
-        //     .json::<CompletionModelResponse>()
-        //     .await?;
+        let response = request.send().await.map_err(OpenAIError::Reqwest)?;
 
-        // Ok(response.choices[0].text.clone())
+        if !response.status().is_success() {
+            let error: APIError = response.json().await.map_err(OpenAIError::Reqwest)?;
+            return Err(OpenAIError::API(error).into());
+        }
 
-        // TODO(nyprothegeek): Handle errors.
-        let text_response = request.send().await?.text().await?;
+        let response: CompletionModelResponse =
+            response.json().await.map_err(OpenAIError::Reqwest)?;
 
-        Ok(text_response)
+        #[cfg(feature = "log")]
+        log::debug!("response: {response:#?}");
+
+        Ok(response
+            .choices
+            .get(0)
+            .ok_or(OpenAIError::CompletionMissing)?
+            .text
+            .clone())
     }
 }
 
-// #[async_trait(?Send)]
-// impl OpenAIChatModel for StringStream {
-//     async fn from_call(prompt: impl Into<String>, model: &OpenAIChatModel) -> Result<Self> {
-//         // Set stream in body.
-//         // let request_stream = Client::new() ... .eventsource().await?;
-//         todo!()
-//     }
-// }
+#[async_trait(?Send)]
+impl Output<OpenAIChatModel> for ChatModelStream {
+    async fn from_call_with_config(
+        prompt: impl Into<String>,
+        model: &OpenAIChatModel,
+        config: ChatConfig,
+    ) -> Result<Self, ModelError> {
+        let request = Client::new()
+            .post(model.config.get_url())
+            .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
+            .json(&ChatBody {
+                messages: vec![ChatMessage {
+                    content: prompt.into(),
+                    role: ChatRole::User,
+                }],
+                stream: Some(true),
+                config,
+            });
+
+        let event_src = request
+            .eventsource()
+            .map_err(|_| OpenAIError::CannotCloneRequestError)?;
+
+        Ok(ChatModelStream::new(event_src))
+    }
+}
+
+#[async_trait(?Send)]
+impl Output<OpenAICompletionModel> for CompletionModelStream {
+    async fn from_call_with_config(
+        prompt: impl Into<String>,
+        model: &OpenAICompletionModel,
+        config: CompletionConfig,
+    ) -> Result<Self, ModelError> {
+        let request = Client::new()
+            .post(model.config.get_url())
+            .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
+            .json(&CompletionBody {
+                prompt: prompt.into(),
+                stream: Some(true),
+                config,
+            });
+
+        let event_src = request
+            .eventsource()
+            .map_err(|_| OpenAIError::CannotCloneRequestError)?;
+
+        Ok(CompletionModelStream::new(event_src))
+    }
+}
 
 impl<M> Default for OpenAI<M>
 where
@@ -255,7 +340,6 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::openai::{Attributes, ChatConfig, CompletionConfig};
 
     #[test]
     fn language_model_config_defaults_are_correct() {
@@ -276,34 +360,5 @@ mod tests {
         assert_eq!(model.config.attributes.best_of, None);
         assert_eq!(model.config.attributes.logit_bias, None);
         assert_eq!(model.config.attributes.user, None);
-    }
-
-    #[tokio::test]
-    async fn test_0() {
-        let model = OpenAICompletionModel::with_config(CompletionConfig {
-            model: CompletionModel::Davinci,
-            attributes: Attributes {
-                temperature: Some(0.5),
-                ..Default::default()
-            },
-        });
-
-        println!("model = {model:#?}");
-
-        let model = OpenAIChatModel::with_config(ChatConfig {
-            model: ChatModel::GPT3_5Turbo16k,
-            ..Default::default()
-        });
-
-        println!("model = {model:#?}");
-    }
-
-    #[tokio::test]
-    async fn test_1() -> Result<()> {
-        let model = OpenAIChatModel::default();
-        let response: String = model.prompt("Hello there!").await?;
-        println!("{response:#?}");
-
-        Ok(())
     }
 }

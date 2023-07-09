@@ -14,7 +14,7 @@ pub const OPENAI_CHAT_URL: &str = "https://api.openai.com/v1/chat/completions";
 // Types
 //-------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct Attributes {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub suffix: Option<String>,
@@ -59,7 +59,7 @@ pub struct Attributes {
     pub user: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChatConfig {
     pub model: ChatModel,
 
@@ -67,7 +67,7 @@ pub struct ChatConfig {
     pub attributes: Attributes,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CompletionConfig {
     pub model: CompletionModel,
 

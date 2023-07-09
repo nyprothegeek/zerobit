@@ -1,11 +1,12 @@
+use crate::openai::OpenAIError;
 use thiserror::Error;
 
 //-------------------------------------------------------------------------------------------------
 // Types
 //-------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Clone, PartialEq, Error)]
+#[derive(Debug, Error)]
 pub enum ModelError {
-    // #[error("OpenAI API error: {0}")]
-    // OpenAIAPI(#[from] reqwest::Error),
+    #[error("openai: {0}")]
+    OpenAI(#[from] OpenAIError),
 }
