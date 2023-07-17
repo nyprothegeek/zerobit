@@ -1,7 +1,7 @@
-// use anyhow::Result;
 use crate::ModelError;
 use async_trait::async_trait;
-use zerobit_common::config::Config;
+use zerobit_common::traits::Config;
+use zerobit_prompt::ResolvablePrompt;
 
 //-------------------------------------------------------------------------------------------------
 // Traits
@@ -14,14 +14,14 @@ pub trait Model: Sized {
     type Config: Config;
 
     /// Generates output from the given input.
-    async fn prompt<O>(&self, prompt: impl Into<String>) -> Result<O, ModelError>
+    async fn prompt<O>(&self, prompt: impl ResolvablePrompt) -> Result<O, ModelError>
     where
         O: Output<Self>;
 
     /// Generates output from the given input and configuration.
     async fn prompt_with_config<O>(
         &self,
-        prompt: String,
+        prompt: impl ResolvablePrompt,
         config: Self::Config,
     ) -> Result<O, ModelError>
     where
@@ -38,13 +38,13 @@ where
     M: Model,
 {
     /// Creates a new output from sending the prompt to the model.
-    async fn from_call(prompt: impl Into<String>, model: &M) -> Result<Self, ModelError> {
+    async fn from_call(prompt: impl ResolvablePrompt, model: &M) -> Result<Self, ModelError> {
         Self::from_call_with_config(prompt, model, model.get_config().clone()).await
     }
 
     /// Creates a new output from sending the prompt to the model with the given configuration.
     async fn from_call_with_config(
-        prompt: impl Into<String>,
+        prompt: impl ResolvablePrompt,
         model: &M,
         config: M::Config,
     ) -> Result<Self, ModelError>;

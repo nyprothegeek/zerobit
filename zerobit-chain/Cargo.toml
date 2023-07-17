@@ -17,5 +17,8 @@ path = "src/lib.rs"
 bench = false
 doctest = true
 
+[dependencies]
+zerobit-common = { version = "0.1.0", path = "../zerobit-common" }
+
 [features]
 default = []

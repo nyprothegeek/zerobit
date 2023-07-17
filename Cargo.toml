@@ -8,6 +8,7 @@ members = [
 	"zerobit-model",
 	"zerobit-prompt",
 	"zerobit-tool",
+	"zerobit-transformers",
 	"zerobit-workflow",
 ]
 

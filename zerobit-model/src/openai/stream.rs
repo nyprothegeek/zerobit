@@ -32,12 +32,6 @@ pin_project! {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ChatStreamMessage {
-    pub role: Option<ChatRole>,
-    pub content: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct ModelStreamResponse<T> {
     pub id: String,
     pub object: String,
@@ -59,6 +53,12 @@ pub struct CompletionStreamChoice {
     pub text: String,
     pub logprobs: Option<u8>,
     pub finish_reason: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ChatStreamMessage {
+    pub role: Option<ChatRole>,
+    pub content: Option<String>,
 }
 
 //-------------------------------------------------------------------------------------------------

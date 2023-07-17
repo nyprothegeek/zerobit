@@ -18,12 +18,6 @@ bench = false
 doctest = true
 
 [dependencies]
-anyhow = "1.0"
-async-trait = "0.1.68"
-derive_builder = "0.12.0"
-proptest = { version = "1.2", optional = true }
-serde = { version = "1.0.164", features = ["derive"] }
 
 [features]
 default = []
-test_utils = ["proptest"]

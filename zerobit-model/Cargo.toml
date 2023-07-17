@@ -33,10 +33,11 @@ strum_macros = "0.25.0"
 thiserror = "1.0.40"
 tokio = { version = "1.29.1", features = ["full"] }
 zerobit-common = { version = "0.1.0", path = "../zerobit-common" }
+zerobit-prompt = { version = "0.1.0", path = "../zerobit-prompt" }
 
 [dev-dependencies]
+anyhow = "1.0.71"
 dotenv = "0.15.0"
-anyhow = "1.0"
 env_logger = "0.10.0"
 futures-util = "0.3.28"
 

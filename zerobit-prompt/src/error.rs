@@ -1,16 +1,14 @@
-use crate::openai::OpenAIError;
 use thiserror::Error;
-use zerobit_prompt::PromptError;
 
 //-------------------------------------------------------------------------------------------------
 // Types
 //-------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Error)]
-pub enum ModelError {
-    #[error("openai: {0}")]
-    OpenAI(#[from] OpenAIError),
+pub enum PromptError {
+    #[error("Prompt contains unresolved variables.")]
+    UnresolvedVars,
 
-    #[error("prompt: {0}")]
-    Prompt(#[from] PromptError),
+    #[error("Regex error: {0}")]
+    RegexError(#[from] regex::Error),
 }

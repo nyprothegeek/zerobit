@@ -1,11 +1,11 @@
 //! # Chain
 //!
-//! Chains are an abstraction higher than low level language models.
-//! Chains are capable of automatic autregression allowing users to have long conversations with them.
+//! Chains are an abstraction higher than zerobit Models.
+//! Chains are suited for continous interaction with a model.
+//! With Chains, there is a focus on the kind of processing that is done on the intermediate input and output of a model.
+//!
+//! For example, a Chain type could apply autoregression to the input of a model.
 
-//-------------------------------------------------------------------------------------------------
-// Traits
-//-------------------------------------------------------------------------------------------------
+mod traits;
 
-/// A trait for chains.
-pub trait Chain {}
+pub use traits::*;

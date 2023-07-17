@@ -15,13 +15,10 @@ async fn main() -> Result<()> {
     env_logger::init();
 
     let model = OpenAIModel::default();
-    let mut stream = model
-        .prompt::<ChatModelStream>("Hello there!")
-        .await?
-        .enumerate();
+    let mut stream: ChatModelStream = model.prompt("Hello there!").await?;
 
-    while let Some((index, output)) = stream.next().await {
-        println!("output {index} = {:#?}", output?);
+    while let Some(output) = stream.next().await {
+        println!("word = {:#?}", output?);
     }
 
     Ok(())

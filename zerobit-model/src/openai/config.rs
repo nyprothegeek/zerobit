@@ -1,7 +1,7 @@
 use super::{ChatModel, CompletionModel};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use zerobit_common::config::Config;
+use zerobit_common::traits::Config;
 
 //-------------------------------------------------------------------------------------------------
 // Constants
