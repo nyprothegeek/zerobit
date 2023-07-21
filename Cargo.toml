@@ -1,15 +1,15 @@
 [workspace]
 members = [
-	"zerobit",
-	"zerobit-agent",
-	"zerobit-chain",
-	"zerobit-common",
-	"zerobit-memory",
-	"zerobit-model",
-	"zerobit-prompt",
-	"zerobit-tool",
-	"zerobit-transformers",
-	"zerobit-workflow",
+	"versa",
+	"versa-agent",
+	"versa-chain",
+	"versa-common",
+	"versa-memory",
+	"versa-model",
+	"versa-prompt",
+	"versa-tool",
+	"versa-transformers",
+	"versa-workflow",
 ]
 
 [profile.dev]

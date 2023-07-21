@@ -1720,6 +1720,115 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
+name = "versa"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "derive_builder",
+ "proptest",
+ "serde",
+]
+
+[[package]]
+name = "versa-agent"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "derive_builder",
+ "proptest",
+ "serde",
+]
+
+[[package]]
+name = "versa-chain"
+version = "0.1.0"
+dependencies = [
+ "versa-common",
+]
+
+[[package]]
+name = "versa-common"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "inner-macros",
+ "serde",
+]
+
+[[package]]
+name = "versa-memory"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "derive_builder",
+ "proptest",
+ "serde",
+]
+
+[[package]]
+name = "versa-model"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "derivative",
+ "dotenv",
+ "env_logger",
+ "futures",
+ "futures-util",
+ "log",
+ "pin-project-lite",
+ "proptest",
+ "reqwest",
+ "reqwest-eventsource",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "thiserror",
+ "tokio",
+ "versa-common",
+ "versa-prompt",
+]
+
+[[package]]
+name = "versa-prompt"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "criterion",
+ "derive_builder",
+ "proptest",
+ "regex",
+ "serde",
+ "thiserror",
+ "versa-common",
+]
+
+[[package]]
+name = "versa-tool"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "derive_builder",
+ "proptest",
+ "serde",
+]
+
+[[package]]
+name = "versa-transformers"
+version = "0.1.0"
+
+[[package]]
+name = "versa-workflow"
+version = "0.1.0"
+
+[[package]]
 name = "wait-timeout"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2028,112 +2137,3 @@ checksum = "80d0f4e272c85def139476380b12f9ac60926689dd2e01d4923222f40580869d"
 dependencies = [
  "winapi",
 ]
-
-[[package]]
-name = "zerobit"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "derive_builder",
- "proptest",
- "serde",
-]
-
-[[package]]
-name = "zerobit-agent"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "derive_builder",
- "proptest",
- "serde",
-]
-
-[[package]]
-name = "zerobit-chain"
-version = "0.1.0"
-dependencies = [
- "zerobit-common",
-]
-
-[[package]]
-name = "zerobit-common"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "inner-macros",
- "serde",
-]
-
-[[package]]
-name = "zerobit-memory"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "derive_builder",
- "proptest",
- "serde",
-]
-
-[[package]]
-name = "zerobit-model"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "derivative",
- "dotenv",
- "env_logger",
- "futures",
- "futures-util",
- "log",
- "pin-project-lite",
- "proptest",
- "reqwest",
- "reqwest-eventsource",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "thiserror",
- "tokio",
- "zerobit-common",
- "zerobit-prompt",
-]
-
-[[package]]
-name = "zerobit-prompt"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "criterion",
- "derive_builder",
- "proptest",
- "regex",
- "serde",
- "thiserror",
- "zerobit-common",
-]
-
-[[package]]
-name = "zerobit-tool"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "derive_builder",
- "proptest",
- "serde",
-]
-
-[[package]]
-name = "zerobit-transformers"
-version = "0.1.0"
-
-[[package]]
-name = "zerobit-workflow"
-version = "0.1.0"

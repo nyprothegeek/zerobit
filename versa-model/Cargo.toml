@@ -1,0 +1,47 @@
+[package]
+name = "versa-model"
+version = "0.1.0"
+description = "A library for working with AI models"
+keywords = []
+categories = []
+license = "Apache-2.0"
+readme = "README.md"
+edition = "2021"
+rust-version = "1.64"
+documentation = "https://docs.rs/versa"
+repository = "https://github.com/nyprothegeek/versa"
+authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
+
+[lib]
+path = "src/lib.rs"
+bench = false
+doctest = true
+
+[dependencies]
+async-trait = "0.1.68"
+derivative = "2.2.0"
+futures = "0.3.28"
+log = { version = "0.4.19", optional = true }
+pin-project-lite = "0.2.10"
+proptest = { version = "1.2", optional = true }
+reqwest = { version = "0.11.18", features = ["json"] }
+reqwest-eventsource = "0.4.0"
+serde = { version = "1.0.164", features = ["derive"] }
+serde_json = "1.0.99"
+strum = "0.25.0"
+strum_macros = "0.25.0"
+thiserror = "1.0.40"
+tokio = { version = "1.29.1", features = ["full"] }
+versa-common = { version = "0.1.0", path = "../versa-common" }
+versa-prompt = { version = "0.1.0", path = "../versa-prompt" }
+
+[dev-dependencies]
+anyhow = "1.0.71"
+dotenv = "0.15.0"
+env_logger = "0.10.0"
+futures-util = "0.3.28"
+
+[features]
+default = []
+test_utils = ["proptest"]
+log = ["dep:log"]
