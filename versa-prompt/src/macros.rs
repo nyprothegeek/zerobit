@@ -14,7 +14,7 @@ macro_rules! prompt {
         $crate::Prompt::new(message)
     }};
     ($( $type:ident: $others:tt ),+) => {{
-        let mut prompt = $crate::PromptMap::default();
+        let mut prompt = $crate::PromptList::default();
         $( prompt!(@chat prompt, $type: $others ); )+
         prompt
     }};
@@ -50,7 +50,10 @@ macro_rules! prompt {
 /// This macro is used to create a hashmap of key-value pairs.
 #[macro_export]
 macro_rules! map {
-    ($( $key:expr => $value:expr),*) => {{
+    () => {
+        ::std::collections::HashMap::new()
+    };
+    ($( $key:expr => $value:expr),+) => {{
         let mut map = ::std::collections::HashMap::new();
         $( map.insert($key, $value); )*
         map
@@ -59,13 +62,6 @@ macro_rules! map {
 
 // TODO(nyprothegeek): Implement.
 /// This macro is used to create a prompt map that allows selection of a prompt based on the model.
-///
-/// ```rust
-/// let prompt = select!(
-///     "openai/chat/gpt-3.5-turbo" => prompt!("You are an OpenAI assistant that helps people with their {{subject}}"),
-///     default => prompt!("You are an AI assistant that helps people with their {{subject}}"),
-/// );
-/// ```
 #[macro_export]
 macro_rules! select {
     () => {};

@@ -1,8 +1,8 @@
 //! This module contains implementations of OpenAI models.
 
 use super::{
-    ChatConfig, ChatModel, ChatModelStream, CompletionConfig, CompletionModel,
-    CompletionModelStream, ModelType, OpenAIConfig,
+    ChatConfig, ChatMessage, ChatMessages, ChatModel, ChatModelStream, CompletionConfig,
+    CompletionModel, CompletionModelStream, ModelKind, OpenAIConfig,
 };
 use crate::{
     openai::{APIError, OpenAIError},
@@ -14,9 +14,7 @@ use derivative::Derivative;
 use reqwest::{header::AUTHORIZATION, Client};
 use reqwest_eventsource::RequestBuilderExt;
 use serde::{Deserialize, Serialize};
-use std::{env, fmt::Debug, vec};
-use strum_macros::Display;
-use versa_prompt::{ResolvablePrompt, ResolvedPrompt};
+use std::{env, fmt::Debug};
 
 //-------------------------------------------------------------------------------------------------
 // Aliases
@@ -37,7 +35,7 @@ pub type ChatModelResponse = ModelResponse<ChatChoice>;
 #[derive(Derivative, Debug)]
 pub struct OpenAI<M>
 where
-    M: ModelType,
+    M: ModelKind,
 {
     /// The configuration of the model.
     pub config: M::Config,
@@ -58,7 +56,7 @@ pub struct ModelResponse<T> {
 
 #[derive(Debug, Serialize, Default)]
 pub struct ChatBody {
-    pub messages: Vec<ChatMessage>,
+    pub messages: ChatMessages,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
@@ -93,32 +91,13 @@ pub struct CompletionChoice {
     pub finish_reason: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Display)]
-#[serde(rename_all = "snake_case")]
-pub enum ChatRole {
-    #[strum(serialize = "system")]
-    System,
-
-    #[strum(serialize = "user")]
-    User,
-
-    #[strum(serialize = "assistant")]
-    Assistant,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ChatMessage {
-    pub role: ChatRole,
-    pub content: String,
-}
-
 //-------------------------------------------------------------------------------------------------
 // Methods
 //-------------------------------------------------------------------------------------------------
 
 impl<M> OpenAI<M>
 where
-    M: ModelType,
+    M: ModelKind,
 {
     /// Creates a new OpenAI language model ne it takes an API key that can be used to make request to associated endpoint.
     ///
@@ -144,7 +123,7 @@ impl OpenAIChatModel {
     /// Sends a request to the OpenAI API to get a completion.
     pub async fn get_completion(
         &self,
-        _messages: Vec<ChatMessage>,
+        _messages: ChatMessages,
     ) -> Result<ChatModelResponse, OpenAIError> {
         todo!()
     }
@@ -155,7 +134,7 @@ impl OpenAICompletionModel {
     /// Sends a request to the OpenAI API to get a completion.
     pub async fn get_completion(
         &self,
-        _prompt: impl Into<String>,
+        _input: impl Into<String>,
     ) -> Result<CompletionModelResponse, OpenAIError> {
         todo!()
     }
@@ -168,26 +147,27 @@ impl OpenAICompletionModel {
 #[async_trait(?Send)]
 impl<M> Model for OpenAI<M>
 where
-    M: ModelType,
+    M: ModelKind,
 {
     type Config = M::Config;
+    type Input = M::Input;
 
-    async fn prompt<O>(&self, prompt: impl ResolvablePrompt) -> Result<O, ModelError>
+    async fn prompt<O>(&self, input: impl Into<Self::Input>) -> Result<O, ModelError>
     where
         O: Output<Self>,
     {
-        O::from_call(prompt, self).await
+        O::from_call(input, self).await
     }
 
     async fn prompt_with_config<O>(
         &self,
-        prompt: impl ResolvablePrompt,
+        input: impl Into<Self::Input>,
         config: Self::Config,
     ) -> Result<O, ModelError>
     where
         O: Output<Self>,
     {
-        O::from_call_with_config(prompt, self, config).await
+        O::from_call_with_config(input, self, config).await
     }
 
     fn get_config(&self) -> &Self::Config {
@@ -198,28 +178,15 @@ where
 #[async_trait(?Send)]
 impl Output<OpenAIChatModel> for String {
     async fn from_call_with_config(
-        prompt: impl ResolvablePrompt,
+        input: impl Into<ChatMessages>,
         model: &OpenAIChatModel,
         config: ChatConfig,
     ) -> Result<Self, ModelError> {
-        // TODO(nyprothegeek): Implement Pattern.
-        let messages = prompt.resolve()?.get_prompt_by_pattern(String::default())?;
-
-        // TODO(nyprothegeek): Use openai ChatMessage format.
-        let content = messages
-            .iter()
-            .map(|(message, _)| message.clone())
-            .collect::<Vec<_>>()
-            .join("\n");
-
         let request = Client::new()
             .post(model.config.get_url())
             .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
             .json(&ChatBody {
-                messages: vec![ChatMessage {
-                    content,
-                    role: ChatRole::User,
-                }],
+                messages: input.into(),
                 config,
                 ..Default::default()
             });
@@ -249,25 +216,15 @@ impl Output<OpenAIChatModel> for String {
 #[async_trait(?Send)]
 impl Output<OpenAICompletionModel> for String {
     async fn from_call_with_config(
-        prompt: impl ResolvablePrompt,
+        input: impl Into<String>,
         model: &OpenAICompletionModel,
         config: CompletionConfig,
     ) -> Result<Self, ModelError> {
-        // TODO(nyprothegeek): Implement Pattern.
-        let messages = prompt.resolve()?.get_prompt_by_pattern(String::default())?;
-
-        // TODO(nyprothegeek): Combin chat messages properly.
-        let prompt = messages
-            .iter()
-            .map(|(message, _)| message.clone())
-            .collect::<Vec<_>>()
-            .join("\n");
-
         let request = Client::new()
             .post(model.config.get_url())
             .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
             .json(&CompletionBody {
-                prompt,
+                prompt: input.into(),
                 config,
                 ..Default::default()
             });
@@ -297,28 +254,15 @@ impl Output<OpenAICompletionModel> for String {
 #[async_trait(?Send)]
 impl Output<OpenAIChatModel> for ChatModelStream {
     async fn from_call_with_config(
-        prompt: impl ResolvablePrompt,
+        input: impl Into<ChatMessages>,
         model: &OpenAIChatModel,
         config: ChatConfig,
     ) -> Result<Self, ModelError> {
-        // TODO(nyprothegeek): Implement Pattern.
-        let messages = prompt.resolve()?.get_prompt_by_pattern(String::default())?;
-
-        // TODO(nyprothegeek): Use openai ChatMessage format.
-        let content = messages
-            .iter()
-            .map(|(message, _)| message.clone())
-            .collect::<Vec<_>>()
-            .join("\n");
-
         let request = Client::new()
             .post(model.config.get_url())
             .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
             .json(&ChatBody {
-                messages: vec![ChatMessage {
-                    content,
-                    role: ChatRole::User,
-                }],
+                messages: input.into(),
                 stream: Some(true),
                 config,
             });
@@ -334,25 +278,15 @@ impl Output<OpenAIChatModel> for ChatModelStream {
 #[async_trait(?Send)]
 impl Output<OpenAICompletionModel> for CompletionModelStream {
     async fn from_call_with_config(
-        prompt: impl ResolvablePrompt,
+        input: impl Into<String>,
         model: &OpenAICompletionModel,
         config: CompletionConfig,
     ) -> Result<Self, ModelError> {
-        // TODO(nyprothegeek): Implement Pattern.
-        let messages = prompt.resolve()?.get_prompt_by_pattern(String::default())?;
-
-        // TODO(nyprothegeek): Combin chat messages properly.
-        let prompt = messages
-            .iter()
-            .map(|(message, _)| message.clone())
-            .collect::<Vec<_>>()
-            .join("\n");
-
         let request = Client::new()
             .post(model.config.get_url())
             .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
             .json(&CompletionBody {
-                prompt,
+                prompt: input.into(),
                 stream: Some(true),
                 config,
             });
@@ -367,7 +301,7 @@ impl Output<OpenAICompletionModel> for CompletionModelStream {
 
 impl<M> Default for OpenAI<M>
 where
-    M: ModelType,
+    M: ModelKind,
 {
     fn default() -> Self {
         Self::new(Default::default(), env::var("OPENAI_API_KEY").unwrap())

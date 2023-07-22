@@ -1,14 +1,14 @@
+use super::{ChatConfig, ChatMessages, CompletionConfig, OpenAIConfig};
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
-
-use super::{ChatConfig, CompletionConfig, OpenAIConfig};
 
 //-------------------------------------------------------------------------------------------------
 // Traits
 //-------------------------------------------------------------------------------------------------
 
-pub trait ModelType {
+pub trait ModelKind {
     type Config: OpenAIConfig;
+    type Input;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -225,10 +225,12 @@ pub enum CompletionModel {
 // Trait Implementations
 //-------------------------------------------------------------------------------------------------
 
-impl ModelType for ChatModel {
+impl ModelKind for ChatModel {
     type Config = ChatConfig;
+    type Input = ChatMessages;
 }
 
-impl ModelType for CompletionModel {
+impl ModelKind for CompletionModel {
     type Config = CompletionConfig;
+    type Input = String;
 }

@@ -1,10 +1,7 @@
-use crate::{PromptError, ResolvablePrompt, ResolvedPrompt};
+use crate::{FinalizablePrompt, FinalizedPrompt, PromptError};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::{BTreeMap, HashMap},
-    fmt::Debug,
-};
+use std::{collections::HashMap, fmt::Debug, vec};
 use versa_common::{pattern::Pattern, traits::Config};
 
 //-------------------------------------------------------------------------------------------------
@@ -13,9 +10,9 @@ use versa_common::{pattern::Pattern, traits::Config};
 
 pub type Tags = Vec<Tag>;
 pub type Prompt = PromptData<String>;
-pub type PromptMap = PromptData<BTreeMap<(usize, String), Tags>>;
-pub type ResolvedPromptString = ResolvedPromptData<String>;
-pub type ResolvedPromptMap = ResolvedPromptData<BTreeMap<(usize, String), Tags>>;
+pub type PromptList = PromptData<Vec<(String, Tags)>>;
+pub type ResolvedPrompt = ResolvedPromptData<String>;
+pub type ResolvedPromptList = ResolvedPromptData<Vec<(String, Tags)>>;
 
 //-------------------------------------------------------------------------------------------------
 // Types
@@ -32,11 +29,6 @@ pub struct PromptData<T> {
 /// A resolved prompt is a prompt that has been resolved.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ResolvedPromptData<T>(PromptData<T>);
-
-/// An iterator over the messages of a `Prompt`.
-pub struct Iter<'a> {
-    iter: std::collections::btree_map::Iter<'a, (usize, String), Tags>,
-}
 
 /// A tag that describes the prompt message identity.
 /// This becomes useful later when converting prompts to strings.
@@ -55,6 +47,11 @@ pub enum Role {
     Assistant,
 }
 
+/// An iterator over the messages of a `PromptList`.
+pub struct PromptListIter<'a> {
+    iter: std::slice::Iter<'a, (String, Tags)>,
+}
+
 //-------------------------------------------------------------------------------------------------
 // Methods
 //-------------------------------------------------------------------------------------------------
@@ -66,33 +63,34 @@ impl Prompt {
             data: message.into(),
         }
     }
-
-    /// Gets the message of the prompt.
-    pub fn get_message(&self) -> &str {
-        &self.data
-    }
 }
 
-impl PromptMap {
+impl PromptList {
     /// Creates a new prompt.
     pub fn new(message: impl Into<String>, tags: Vec<Tag>) -> Self {
         Self {
-            data: vec![((0, message.into()), tags)].into_iter().collect(),
+            data: vec![(message.into(), tags)],
         }
     }
 
     /// Adds a message to the prompt.
     pub fn add_message(&mut self, message: impl Into<String>, tags: Vec<Tag>) {
-        self.data
-            .entry((self.data.len(), message.into()))
-            .or_default()
-            .extend(tags);
+        self.data.push((message.into(), tags));
     }
 
     /// Returns an iterator over the messages of the prompt.
-    pub fn iter(&self) -> Iter {
-        Iter {
+    pub fn iter(&self) -> PromptListIter {
+        PromptListIter {
             iter: self.data.iter(),
+        }
+    }
+}
+
+impl ResolvedPromptList {
+    /// Returns an iterator over the messages of the prompt.
+    pub fn iter(&self) -> PromptListIter {
+        PromptListIter {
+            iter: self.0.data.iter(),
         }
     }
 }
@@ -101,39 +99,8 @@ impl PromptMap {
 // Trait Implementations
 //-------------------------------------------------------------------------------------------------
 
-impl<'a> Iterator for Iter<'a> {
-    type Item = ((&'a usize, &'a str), &'a [Tag]);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.iter
-            .next()
-            .map(|((index, message), tags)| ((index, message.as_str()), tags.as_slice()))
-    }
-}
-
-impl Config for Prompt {}
-
-impl Config for PromptMap {}
-
-impl ResolvedPrompt for ResolvedPromptString {
-    fn get_prompt_by_pattern(&self, _: Pattern) -> Result<Vec<(String, Tags)>, PromptError> {
-        Ok(vec![(self.0.data.clone(), vec![])])
-    }
-}
-
-impl ResolvedPrompt for ResolvedPromptMap {
-    fn get_prompt_by_pattern(&self, _: Pattern) -> Result<Vec<(String, Tags)>, PromptError> {
-        // TODO(nyprothegeek): Use the pattern to select the right prompt messages.
-        let mut prompts = vec![];
-        for ((_, message), tags) in self.0.iter() {
-            prompts.push((message.into(), tags.into()));
-        }
-        Ok(prompts)
-    }
-}
-
-impl ResolvablePrompt for Prompt {
-    type ResolvedType = ResolvedPromptString;
+impl FinalizablePrompt for Prompt {
+    type FinalizedPrompt = ResolvedPrompt;
 
     fn has_unresolved_vars(&self) -> Result<bool, PromptError> {
         let re = Regex::new(r"\{\{(?<var>[a-zA-Z_][a-zA-Z0-9_]*)\}\}")?;
@@ -157,7 +124,7 @@ impl ResolvablePrompt for Prompt {
         Ok(())
     }
 
-    fn resolve(self) -> Result<Self::ResolvedType, PromptError> {
+    fn finalize(self) -> Result<Self::FinalizedPrompt, PromptError> {
         if self.has_unresolved_vars()? {
             return Err(PromptError::UnresolvedVars);
         }
@@ -166,12 +133,12 @@ impl ResolvablePrompt for Prompt {
     }
 }
 
-impl ResolvablePrompt for PromptMap {
-    type ResolvedType = ResolvedPromptMap;
+impl FinalizablePrompt for PromptList {
+    type FinalizedPrompt = ResolvedPromptList;
 
     fn has_unresolved_vars(&self) -> Result<bool, PromptError> {
         let re = Regex::new(r"\{\{(?<var>[a-zA-Z_][a-zA-Z0-9_]*)\}\}")?;
-        for (_, message) in self.data.keys() {
+        for (message, _) in self.data.iter() {
             if re.is_match(message) {
                 return Ok(true);
             }
@@ -183,9 +150,9 @@ impl ResolvablePrompt for PromptMap {
     fn resolve_var(&mut self, var: &str, value: &str) -> Result<(), PromptError> {
         let re = Regex::new(&format!(r"\{{\{{(?<var>{})\}}\}}", var))?;
         let messages = std::mem::take(&mut self.data);
-        for ((index, message), tags) in messages {
+        for (message, tags) in messages {
             self.data
-                .insert((index, re.replace_all(&message, value).into()), tags);
+                .push((re.replace_all(&message, value).into(), tags));
         }
 
         Ok(())
@@ -198,7 +165,7 @@ impl ResolvablePrompt for PromptMap {
         Ok(())
     }
 
-    fn resolve(self) -> Result<Self::ResolvedType, PromptError> {
+    fn finalize(self) -> Result<Self::FinalizedPrompt, PromptError> {
         if self.has_unresolved_vars()? {
             return Err(PromptError::UnresolvedVars);
         }
@@ -207,68 +174,56 @@ impl ResolvablePrompt for PromptMap {
     }
 }
 
-impl ResolvablePrompt for String {
-    type ResolvedType = ResolvedPromptString;
+impl IntoIterator for PromptList {
+    type Item = (String, Vec<Tag>);
+    type IntoIter = vec::IntoIter<Self::Item>;
 
-    fn has_unresolved_vars(&self) -> Result<bool, PromptError> {
-        let re = Regex::new(r"\{\{(?<var>[a-zA-Z_][a-zA-Z0-9_]*)\}\}")?;
-        if re.is_match(self) {
-            return Ok(true);
-        }
-
-        Ok(false)
-    }
-
-    fn resolve_var(&mut self, var: &str, value: &str) -> Result<(), PromptError> {
-        let re = Regex::new(&format!(r"\{{\{{(?<var>{})\}}\}}", var))?;
-        *self = re.replace_all(self, value).into();
-        Ok(())
-    }
-
-    fn format(&mut self, map: HashMap<&str, &str>) -> Result<(), PromptError> {
-        for (var, value) in map {
-            self.resolve_var(var, value)?;
-        }
-        Ok(())
-    }
-
-    fn resolve(self) -> Result<Self::ResolvedType, PromptError> {
-        if self.has_unresolved_vars()? {
-            return Err(PromptError::UnresolvedVars);
-        }
-
-        Ok(ResolvedPromptData(Prompt::new(self)))
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
     }
 }
 
-/// This one exists for convenience. Some of its methods are not implemented.
-/// This is because it is not possible to implement them for `&str`.
-impl ResolvablePrompt for &'static str {
-    type ResolvedType = ResolvedPromptString;
+impl<'a> Iterator for PromptListIter<'a> {
+    type Item = &'a (String, Vec<Tag>);
 
-    fn has_unresolved_vars(&self) -> Result<bool, PromptError> {
-        let re = Regex::new(r"\{\{(?<var>[a-zA-Z_][a-zA-Z0-9_]*)\}\}")?;
-        if re.is_match(self) {
-            return Ok(true);
-        }
-
-        Ok(false)
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
     }
+}
 
-    fn resolve_var(&mut self, _: &str, _: &str) -> Result<(), PromptError> {
-        unimplemented!()
+impl IntoIterator for ResolvedPromptList {
+    type Item = (String, Vec<Tag>);
+    type IntoIter = vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.data.into_iter()
     }
+}
 
-    fn format(&mut self, _: HashMap<&str, &str>) -> Result<(), PromptError> {
-        unimplemented!()
+impl Config for Prompt {}
+
+impl Config for PromptList {}
+
+impl FinalizedPrompt for ResolvedPrompt {}
+
+impl FinalizedPrompt for ResolvedPromptList {}
+
+impl From<ResolvedPromptList> for String {
+    fn from(_: ResolvedPromptList) -> Self {
+        // TODO(nyprothegeek): Combine all the messages into one with roles added.
+        todo!()
     }
+}
 
-    fn resolve(self) -> Result<Self::ResolvedType, PromptError> {
-        if self.has_unresolved_vars()? {
-            return Err(PromptError::UnresolvedVars);
-        }
+impl From<Prompt> for String {
+    fn from(prompt: Prompt) -> Self {
+        prompt.data
+    }
+}
 
-        Ok(ResolvedPromptData(Prompt::new(self)))
+impl From<ResolvedPrompt> for String {
+    fn from(prompt: ResolvedPrompt) -> Self {
+        prompt.0.data
     }
 }
 
@@ -287,7 +242,7 @@ mod tests {
         let prompt = Prompt::new("Hello {{name}}!");
         assert!(prompt.has_unresolved_vars().unwrap());
 
-        let prompt = PromptMap::new(
+        let prompt = PromptList::new(
             "You are a helpful AI assistant that help users to {{job}}!",
             vec![Tag::Role(Role::System)],
         );
@@ -296,13 +251,13 @@ mod tests {
 
     #[test]
     fn test_resolved_prompt_conversion_succeeds() {
-        let prompt = PromptMap::new("Hello World!", vec![]);
+        let prompt = PromptList::new("Hello World!", vec![]);
         assert!(!prompt.has_unresolved_vars().unwrap());
 
-        let prompt = PromptMap::new("Hello {{name!", vec![]);
+        let prompt = PromptList::new("Hello {{name!", vec![]);
         assert!(!prompt.has_unresolved_vars().unwrap());
 
-        let result = prompt.resolve();
+        let result = prompt.finalize();
         assert!(result.is_ok());
     }
 
@@ -314,16 +269,16 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-            prompt.get_message(),
+            String::from(prompt),
             "Hello ChatGPT! What is your favorite color?"
         );
 
-        let mut prompt = PromptMap::new("Hello {{name}}! What is your {{question}}?", vec![]);
+        let mut prompt = PromptList::new("Hello {{name}}! What is your {{question}}?", vec![]);
         prompt
             .format(map!("name" => "ChatGPT", "question" => "favorite color"))
             .unwrap();
 
-        let ((_, message), _) = prompt.iter().next().unwrap();
+        let (message, _) = prompt.iter().next().unwrap();
         assert_eq!(message, "Hello ChatGPT! What is your favorite color?");
     }
 }

@@ -1,4 +1,4 @@
-use super::{ChatRole, OpenAIChatModel, OpenAICompletionModel, OpenAIError};
+use super::{ChatStreamMessage, OpenAIChatModel, OpenAICompletionModel, OpenAIError};
 use futures::{stream::Skip, Stream, StreamExt};
 use pin_project_lite::pin_project;
 use reqwest_eventsource::{Event, EventSource};
@@ -53,12 +53,6 @@ pub struct CompletionStreamChoice {
     pub text: String,
     pub logprobs: Option<u8>,
     pub finish_reason: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ChatStreamMessage {
-    pub role: Option<ChatRole>,
-    pub content: Option<String>,
 }
 
 //-------------------------------------------------------------------------------------------------

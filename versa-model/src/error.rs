@@ -1,6 +1,5 @@
 use crate::openai::OpenAIError;
 use thiserror::Error;
-use versa_prompt::PromptError;
 
 //-------------------------------------------------------------------------------------------------
 // Types
@@ -10,7 +9,4 @@ use versa_prompt::PromptError;
 pub enum ModelError {
     #[error("openai: {0}")]
     OpenAI(#[from] OpenAIError),
-
-    #[error("prompt: {0}")]
-    Prompt(#[from] PromptError),
 }

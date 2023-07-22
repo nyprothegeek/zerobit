@@ -1,14 +1,12 @@
+use crate::PromptError;
 use std::collections::HashMap;
-use versa_common::pattern::Pattern;
-
-use crate::{PromptError, Tags};
 
 //-------------------------------------------------------------------------------------------------
 // Traits
 //-------------------------------------------------------------------------------------------------
 
-pub trait ResolvablePrompt {
-    type ResolvedType: ResolvedPrompt;
+pub trait FinalizablePrompt {
+    type FinalizedPrompt: FinalizedPrompt;
 
     /// Checks if the prompt has unresolved variables.
     fn has_unresolved_vars(&self) -> Result<bool, PromptError>;
@@ -19,13 +17,21 @@ pub trait ResolvablePrompt {
     /// Changes occurences of the given variables to the given values if they exist.
     fn format(&mut self, map: HashMap<&str, &str>) -> Result<(), PromptError>;
 
-    /// Resolves the prompt.
-    fn resolve(self) -> Result<Self::ResolvedType, PromptError>;
+    /// Resolves into its final form.
+    fn finalize(self) -> Result<Self::FinalizedPrompt, PromptError>;
+
+    /// Resolves the prompt into a finalized prompt.
+    fn resolve(mut self, map: HashMap<&str, &str>) -> Result<Self::FinalizedPrompt, PromptError>
+    where
+        Self: Sized,
+    {
+        self.format(map)?;
+        if self.has_unresolved_vars()? {
+            return Err(PromptError::UnresolvedVars);
+        }
+
+        self.finalize()
+    }
 }
 
-pub trait ResolvedPrompt {
-    // TODO(nyprothegeek): Figure out how to return an impl Iterator<Item = (&str, &Tags)>
-    /// Function for selecting prompt based on a pattern.
-    /// If pattern is not found, returns all prompts.
-    fn get_prompt_by_pattern(&self, pattern: Pattern) -> Result<Vec<(String, Tags)>, PromptError>;
-}
+pub trait FinalizedPrompt {}
