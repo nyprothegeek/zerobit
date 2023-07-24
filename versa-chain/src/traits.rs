@@ -1,5 +1,8 @@
+use std::pin::Pin;
+
 use crate::ChainError;
 use async_trait::async_trait;
+use futures::Stream;
 use versa_model::{Model, Output};
 
 //-------------------------------------------------------------------------------------------------
@@ -29,24 +32,26 @@ where
     where
         O: Output<M>;
 
-    /// Prompts the model with the given inputs in a sequence.
-    async fn prompt_many<O, I>(
-        &self,
-        prompt: impl IntoIterator<Item = I>,
-    ) -> Result<Vec<O>, ChainError>
+    // TODO(nyprothegeek): Implement a custom ChainStream<T> type to hide the Box<dyn Stream<Item = Result<T, ChainError>>> type.
+    /// Prompts the model with the given inputs.
+    async fn prompt_many<'a, O, I>(
+        &'a self,
+        prompts: impl IntoIterator<Item = I>,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, ChainError>> + 'a>>
     where
-        O: Output<M>,
-        I: Into<M::Input>;
+        O: Output<M> + 'a,
+        I: Into<M::Input> + 'a;
 
-    /// Prompts the model with the given inputs and configuration in a sequence.
-    async fn prompt_many_with_config<O, I>(
-        &self,
-        prompt: impl IntoIterator<Item = I>,
+    // TODO(nyprothegeek): Implement a custom ChainStream<T> type to hide the Box<dyn Stream<Item = Result<T, ChainError>>> type.
+    /// Prompts the model with the given inputs and configuration.
+    async fn prompt_many_with_config<'a, O, I>(
+        &'a self,
+        prompts: impl IntoIterator<Item = I>,
         config: M::Config,
-    ) -> Result<Vec<O>, ChainError>
+    ) -> Pin<Box<dyn Stream<Item = Result<O, ChainError>> + 'a>>
     where
-        O: Output<M>,
-        I: Into<M::Input>;
+        O: Output<M> + 'a,
+        I: Into<M::Input> + 'a;
 }
 
 pub trait DynChain {}

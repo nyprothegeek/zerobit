@@ -1,5 +1,8 @@
+use std::pin::Pin;
+
 use crate::{Chain, ChainError};
 use async_trait::async_trait;
+use futures::{stream::FuturesUnordered, Stream, TryFutureExt};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use versa_common::traits::Config;
 use versa_model::{Model, Output};
@@ -84,35 +87,36 @@ where
         Ok(O::from_call_with_config(prompt, &self.config.model, config).await?)
     }
 
-    async fn prompt_many<O, I>(
-        &self,
-        prompt: impl IntoIterator<Item = I>,
-    ) -> Result<Vec<O>, ChainError>
+    async fn prompt_many<'a, O, I>(
+        &'a self,
+        prompts: impl IntoIterator<Item = I>,
+    ) -> Pin<Box<dyn Stream<Item = Result<O, ChainError>> + 'a>>
     where
-        O: Output<M>,
-        I: Into<M::Input>,
+        O: Output<M> + 'a,
+        I: Into<M::Input> + 'a,
     {
-        self.prompt_many_with_config(prompt, self.config.model.get_config().clone())
+        self.prompt_many_with_config(prompts, self.config.model.get_config().clone())
             .await
     }
 
-    async fn prompt_many_with_config<O, I>(
-        &self,
-        prompt: impl IntoIterator<Item = I>,
+    async fn prompt_many_with_config<'a, O, I>(
+        &'a self,
+        prompts: impl IntoIterator<Item = I>,
         config: M::Config,
-    ) -> Result<Vec<O>, ChainError>
+    ) -> Pin<Box<dyn Stream<Item = Result<O, ChainError>> + 'a>>
     where
-        O: Output<M>,
-        I: Into<M::Input>,
+        O: Output<M> + 'a,
+        I: Into<M::Input> + 'a,
     {
-        let mut outputs = Vec::new();
-
-        for input in prompt {
-            outputs
-                .push(O::from_call_with_config(input, &self.config.model, config.clone()).await?);
+        let tasks = FuturesUnordered::new();
+        for prompt in prompts {
+            tasks.push(
+                O::from_call_with_config(prompt, &self.config.model, config.clone())
+                    .map_err(|e| e.into()),
+            );
         }
 
-        Ok(outputs)
+        Box::pin(tasks)
     }
 }
 

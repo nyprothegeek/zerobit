@@ -2,7 +2,9 @@
 // Traits
 //-------------------------------------------------------------------------------------------------
 
-pub trait Middleware {}
+pub trait Middleware {
+    fn map<T>(&self, input: T /* meta: &Meta */) -> T;
+}
 
 pub trait DynMiddleware {}
 

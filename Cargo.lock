@@ -1737,6 +1737,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "env_logger",
+ "futures",
  "serde",
  "thiserror",
  "tokio",
