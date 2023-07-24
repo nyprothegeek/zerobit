@@ -1,8 +1,5 @@
-use std::pin::Pin;
-
 use crate::{Chain, ChainError};
 use async_trait::async_trait;
-use futures::{stream::FuturesUnordered, Stream, TryFutureExt};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use versa_common::traits::Config;
 use versa_model::{Model, Output};
@@ -85,38 +82,6 @@ where
         O: Output<M>,
     {
         Ok(O::from_call_with_config(prompt, &self.config.model, config).await?)
-    }
-
-    async fn prompt_many<'a, O, I>(
-        &'a self,
-        prompts: impl IntoIterator<Item = I>,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, ChainError>> + 'a>>
-    where
-        O: Output<M> + 'a,
-        I: Into<M::Input> + 'a,
-    {
-        self.prompt_many_with_config(prompts, self.config.model.get_config().clone())
-            .await
-    }
-
-    async fn prompt_many_with_config<'a, O, I>(
-        &'a self,
-        prompts: impl IntoIterator<Item = I>,
-        config: M::Config,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, ChainError>> + 'a>>
-    where
-        O: Output<M> + 'a,
-        I: Into<M::Input> + 'a,
-    {
-        let tasks = FuturesUnordered::new();
-        for prompt in prompts {
-            tasks.push(
-                O::from_call_with_config(prompt, &self.config.model, config.clone())
-                    .map_err(|e| e.into()),
-            );
-        }
-
-        Box::pin(tasks)
     }
 }
 
