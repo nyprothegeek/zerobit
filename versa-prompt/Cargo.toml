@@ -32,7 +32,7 @@ versa-common = { version = "0.1.0", path = "../versa-common" }
 
 [features]
 default = []
-test_utils = ["proptest"]
+test_utils = ["dep:proptest"]
 
 [dev-dependencies]
 anyhow = "1.0.71"

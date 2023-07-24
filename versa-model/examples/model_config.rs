@@ -14,12 +14,20 @@ async fn main() -> Result<()> {
     utils::load_env(Env::Prod);
     env_logger::init();
 
-    let model = OpenAIModel::default();
+    let model = OpenAIModel::default()
+        .temperature(0.)
+        .max_tokens(5)
+        .top_p(0.2);
+
     let output: String = model.prompt("Hello there!").await?;
 
     println!("chat model output = {output:#?}");
 
-    let model = OpenAICompletionModel::default();
+    let model = OpenAICompletionModel::default()
+        .temperature(0.)
+        .max_tokens(5)
+        .top_p(0.2);
+
     let output: String = model.prompt("Hello there!").await?;
 
     println!("completion model output = {output:#?}");

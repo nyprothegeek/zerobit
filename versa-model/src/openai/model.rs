@@ -10,11 +10,15 @@ use crate::{
     ModelError,
 };
 use async_trait::async_trait;
-use derivative::Derivative;
 use reqwest::{header::AUTHORIZATION, Client};
 use reqwest_eventsource::RequestBuilderExt;
 use serde::{Deserialize, Serialize};
-use std::{env, fmt::Debug};
+use std::{
+    collections::HashMap,
+    env,
+    fmt::{self, Debug, Formatter},
+};
+use versa_common::traits::Config;
 
 //-------------------------------------------------------------------------------------------------
 // Aliases
@@ -31,18 +35,20 @@ pub type ChatModelResponse = ModelResponse<ChatChoice>;
 // Types
 //-------------------------------------------------------------------------------------------------
 
+// TODO(nyprothegeek): Implement call functions on the models taking the and returning the OpenAI data types.
 /// An OpenAI language model.
-#[derive(Derivative, Debug)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct OpenAI<M>
 where
     M: ModelKind,
 {
     /// The configuration of the model.
-    pub config: M::Config,
+    #[serde(flatten)]
+    config: M::Config,
 
     // OpenAI API key.
-    #[derivative(Debug = "ignore")]
-    api_key: String,
+    #[serde(skip)]
+    api_key: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -95,48 +101,185 @@ pub struct CompletionChoice {
 // Methods
 //-------------------------------------------------------------------------------------------------
 
+// TODO(nyprothegeek): Document the builder methods properly.
 impl<M> OpenAI<M>
 where
     M: ModelKind,
 {
-    /// Creates a new OpenAI language model ne it takes an API key that can be used to make request to associated endpoint.
-    ///
-    /// OpenAI API keys can obtained at https://platform.openai.com/account/api-keys.
-    pub fn new(config: M::Config, api_key: impl Into<String>) -> Self {
+    /// Creates a new OpenAI model with the given configuration.
+    pub fn with_config(config: M::Config) -> Self {
         Self {
             config,
-            api_key: api_key.into(),
+            api_key: Default::default(),
         }
     }
 
-    /// Creates a new OpenAI language model with the given configuration.
-    /// This function expects to find the API key in `OPENAI_API_KEY` environment variable.
-    ///
-    /// OpenAI API keys can obtained at https://platform.openai.com/account/api-keys.
-    pub fn with_config(config: M::Config) -> Self {
-        Self::new(config, env::var("OPENAI_API_KEY").unwrap())
+    /// Sets the API key.
+    pub fn api_key(mut self, api_key: impl Into<String>) -> Self {
+        self.api_key = Some(api_key.into());
+        self
     }
 }
 
+// TODO(nyprothegeek): Document the builder methods properly.
 impl OpenAIChatModel {
-    // TODO(nyprothegeek): Support stream.
-    /// Sends a request to the OpenAI API to get a completion.
-    pub async fn get_completion(
-        &self,
-        _messages: ChatMessages,
-    ) -> Result<ChatModelResponse, OpenAIError> {
-        todo!()
+    /// Sets the model.
+    pub fn model(mut self, model: ChatModel) -> Self {
+        self.config.model = model;
+        self
+    }
+
+    /// Sets the suffix.
+    pub fn suffix(mut self, suffix: impl Into<String>) -> Self {
+        self.config.attributes.suffix = Some(suffix.into());
+        self
+    }
+
+    /// Sets the max tokens.
+    pub fn max_tokens(mut self, max_tokens: u16) -> Self {
+        self.config.attributes.max_tokens = Some(max_tokens);
+        self
+    }
+
+    /// Sets the temperature.
+    pub fn temperature(mut self, temperature: f32) -> Self {
+        self.config.attributes.temperature = Some(temperature);
+        self
+    }
+
+    /// Sets the top p.
+    pub fn top_p(mut self, top_p: f32) -> Self {
+        self.config.attributes.top_p = Some(top_p);
+        self
+    }
+
+    /// Sets the n.
+    pub fn n(mut self, n: u8) -> Self {
+        self.config.attributes.n = Some(n);
+        self
+    }
+
+    /// Sets the logprobs.
+    pub fn logprobs(mut self, logprobs: u8) -> Self {
+        self.config.attributes.logprobs = Some(logprobs);
+        self
+    }
+
+    /// Sets the echo.
+    pub fn echo(mut self, echo: bool) -> Self {
+        self.config.attributes.echo = Some(echo);
+        self
+    }
+
+    /// Sets the presence penalty.
+    pub fn presence_penalty(mut self, presence_penalty: f32) -> Self {
+        self.config.attributes.presence_penalty = Some(presence_penalty);
+        self
+    }
+
+    /// Sets the frequency penalty.
+    pub fn frequency_penalty(mut self, frequency_penalty: f32) -> Self {
+        self.config.attributes.frequency_penalty = Some(frequency_penalty);
+        self
+    }
+
+    /// Sets the best of.
+    pub fn best_of(mut self, best_of: u8) -> Self {
+        self.config.attributes.best_of = Some(best_of);
+        self
+    }
+
+    /// Sets the logit bias.
+    pub fn logit_bias(mut self, logit_bias: HashMap<u64, i8>) -> Self {
+        self.config.attributes.logit_bias = Some(logit_bias);
+        self
+    }
+
+    /// Sets the user token.
+    pub fn user(mut self, user_token: impl Into<String>) -> Self {
+        self.config.attributes.user = Some(user_token.into());
+        self
     }
 }
 
+// TODO(nyprothegeek): Document the builder methods properly.
 impl OpenAICompletionModel {
-    // TODO(nyprothegeek): Support stream.
-    /// Sends a request to the OpenAI API to get a completion.
-    pub async fn get_completion(
-        &self,
-        _input: impl Into<String>,
-    ) -> Result<CompletionModelResponse, OpenAIError> {
-        todo!()
+    /// Sets the model.
+    pub fn model(mut self, model: CompletionModel) -> Self {
+        self.config.model = model;
+        self
+    }
+
+    /// Sets the suffix.
+    pub fn suffix(mut self, suffix: impl Into<String>) -> Self {
+        self.config.attributes.suffix = Some(suffix.into());
+        self
+    }
+
+    /// Sets the max tokens.
+    pub fn max_tokens(mut self, max_tokens: u16) -> Self {
+        self.config.attributes.max_tokens = Some(max_tokens);
+        self
+    }
+
+    /// Sets the temperature.
+    pub fn temperature(mut self, temperature: f32) -> Self {
+        self.config.attributes.temperature = Some(temperature);
+        self
+    }
+
+    /// Sets the top p.
+    pub fn top_p(mut self, top_p: f32) -> Self {
+        self.config.attributes.top_p = Some(top_p);
+        self
+    }
+
+    /// Sets the n.
+    pub fn n(mut self, n: u8) -> Self {
+        self.config.attributes.n = Some(n);
+        self
+    }
+
+    /// Sets the logprobs.
+    pub fn logprobs(mut self, logprobs: u8) -> Self {
+        self.config.attributes.logprobs = Some(logprobs);
+        self
+    }
+
+    /// Sets the echo.
+    pub fn echo(mut self, echo: bool) -> Self {
+        self.config.attributes.echo = Some(echo);
+        self
+    }
+
+    /// Sets the presence penalty.
+    pub fn presence_penalty(mut self, presence_penalty: f32) -> Self {
+        self.config.attributes.presence_penalty = Some(presence_penalty);
+        self
+    }
+
+    /// Sets the frequency penalty.
+    pub fn frequency_penalty(mut self, frequency_penalty: f32) -> Self {
+        self.config.attributes.frequency_penalty = Some(frequency_penalty);
+        self
+    }
+
+    /// Sets the best of.
+    pub fn best_of(mut self, best_of: u8) -> Self {
+        self.config.attributes.best_of = Some(best_of);
+        self
+    }
+
+    /// Sets the logit bias.
+    pub fn logit_bias(mut self, logit_bias: HashMap<u64, i8>) -> Self {
+        self.config.attributes.logit_bias = Some(logit_bias);
+        self
+    }
+
+    /// Sets the user token.
+    pub fn user(mut self, user_token: impl Into<String>) -> Self {
+        self.config.attributes.user = Some(user_token.into());
+        self
     }
 }
 
@@ -184,7 +327,13 @@ impl Output<OpenAIChatModel> for String {
     ) -> Result<Self, ModelError> {
         let request = Client::new()
             .post(model.config.get_url())
-            .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
+            .header(
+                AUTHORIZATION,
+                format!(
+                    "Bearer {}",
+                    model.api_key.as_ref().ok_or(OpenAIError::MissingAPIKey)?
+                ),
+            )
             .json(&ChatBody {
                 messages: input.into(),
                 config,
@@ -222,7 +371,13 @@ impl Output<OpenAICompletionModel> for String {
     ) -> Result<Self, ModelError> {
         let request = Client::new()
             .post(model.config.get_url())
-            .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
+            .header(
+                AUTHORIZATION,
+                format!(
+                    "Bearer {}",
+                    model.api_key.as_ref().ok_or(OpenAIError::MissingAPIKey)?
+                ),
+            )
             .json(&CompletionBody {
                 prompt: input.into(),
                 config,
@@ -260,7 +415,13 @@ impl Output<OpenAIChatModel> for ChatModelStream {
     ) -> Result<Self, ModelError> {
         let request = Client::new()
             .post(model.config.get_url())
-            .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
+            .header(
+                AUTHORIZATION,
+                format!(
+                    "Bearer {}",
+                    model.api_key.as_ref().ok_or(OpenAIError::MissingAPIKey)?
+                ),
+            )
             .json(&ChatBody {
                 messages: input.into(),
                 stream: Some(true),
@@ -284,7 +445,13 @@ impl Output<OpenAICompletionModel> for CompletionModelStream {
     ) -> Result<Self, ModelError> {
         let request = Client::new()
             .post(model.config.get_url())
-            .header(AUTHORIZATION, format!("Bearer {}", model.api_key))
+            .header(
+                AUTHORIZATION,
+                format!(
+                    "Bearer {}",
+                    model.api_key.as_ref().ok_or(OpenAIError::MissingAPIKey)?
+                ),
+            )
             .json(&CompletionBody {
                 prompt: input.into(),
                 stream: Some(true),
@@ -304,9 +471,26 @@ where
     M: ModelKind,
 {
     fn default() -> Self {
-        Self::new(Default::default(), env::var("OPENAI_API_KEY").unwrap())
+        Self {
+            config: Default::default(),
+            api_key: Some(env::var("OPENAI_API_KEY").unwrap()),
+        }
     }
 }
+
+impl<M> Debug for OpenAI<M>
+where
+    M: ModelKind,
+    M::Config: Debug,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OpenAI")
+            .field("config", &self.config)
+            .finish()
+    }
+}
+
+impl<M> Config for OpenAI<M> where M: ModelKind {}
 
 //-------------------------------------------------------------------------------------------------
 // Tests
@@ -314,13 +498,34 @@ where
 
 #[cfg(test)]
 mod tests {
+    use versa_common::{utils, Env};
+
     use super::*;
 
     #[test]
     fn language_model_config_defaults_are_correct() {
+        utils::load_env(Env::Test);
         let model = OpenAIModel::default();
 
         assert_eq!(model.config.model, ChatModel::GPT3_5Turbo);
+        assert_eq!(model.config.attributes.suffix, None);
+        assert_eq!(model.config.attributes.max_tokens, None);
+        assert_eq!(model.config.attributes.temperature, None);
+        assert_eq!(model.config.attributes.top_p, None);
+        assert_eq!(model.config.attributes.n, None);
+        assert_eq!(model.config.attributes.stream, None);
+        assert_eq!(model.config.attributes.logprobs, None);
+        assert_eq!(model.config.attributes.echo, None);
+        assert_eq!(model.config.attributes.stop, None);
+        assert_eq!(model.config.attributes.presence_penalty, None);
+        assert_eq!(model.config.attributes.frequency_penalty, None);
+        assert_eq!(model.config.attributes.best_of, None);
+        assert_eq!(model.config.attributes.logit_bias, None);
+        assert_eq!(model.config.attributes.user, None);
+
+        let model = OpenAICompletionModel::default();
+
+        assert_eq!(model.config.model, CompletionModel::TextDaVinci003);
         assert_eq!(model.config.attributes.suffix, None);
         assert_eq!(model.config.attributes.max_tokens, None);
         assert_eq!(model.config.attributes.temperature, None);

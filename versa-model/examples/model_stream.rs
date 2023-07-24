@@ -1,5 +1,6 @@
 use anyhow::Result;
 use futures_util::StreamExt;
+use versa_common::{utils, Env};
 use versa_model::{
     openai::{ChatModelStream, OpenAIModel},
     Model,
@@ -11,7 +12,7 @@ use versa_model::{
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
-    dotenv::dotenv().ok();
+    utils::load_env(Env::Prod);
     env_logger::init();
 
     let model = OpenAIModel::default();

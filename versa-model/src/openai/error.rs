@@ -26,6 +26,9 @@ pub enum OpenAIError {
 
     #[error("completion missing from response")]
     CompletionMissing,
+
+    #[error("missing api key")]
+    MissingAPIKey,
 }
 
 #[derive(Debug, Deserialize, Error)]

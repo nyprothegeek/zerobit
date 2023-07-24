@@ -5,7 +5,7 @@ use std::fmt::Debug;
 // Traits
 //-------------------------------------------------------------------------------------------------
 
-pub trait Config: Serialize + Deserialize<'static> + Default + Clone {}
+pub trait Config: Serialize + Deserialize<'static> + Clone {}
 
 pub trait Description: Debug {
     /// If specified this should have the format "<type>/<org>/<category>/<name>",

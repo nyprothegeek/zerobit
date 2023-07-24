@@ -1,4 +1,5 @@
 use anyhow::Result;
+use versa_common::{utils, Env};
 use versa_model::{
     openai::{OpenAICompletionModel, OpenAIModel},
     Model,
@@ -11,7 +12,7 @@ use versa_prompt::{map, prompt, FinalizablePrompt};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
-    dotenv::dotenv().ok();
+    utils::load_env(Env::Prod);
     env_logger::init();
 
     let prompt = prompt!(

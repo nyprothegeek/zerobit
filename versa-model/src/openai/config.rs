@@ -79,7 +79,7 @@ pub struct CompletionConfig {
 // Traits
 //-------------------------------------------------------------------------------------------------
 
-pub trait OpenAIConfig: Config {
+pub trait OpenAIConfig: Config + Default {
     fn get_url(&self) -> &str;
 }
 

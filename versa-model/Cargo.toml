@@ -19,7 +19,6 @@ doctest = true
 
 [dependencies]
 async-trait = "0.1.68"
-derivative = "2.2.0"
 futures = "0.3.28"
 log = { version = "0.4.19", optional = true }
 pin-project-lite = "0.2.10"
@@ -37,7 +36,6 @@ versa-prompt = { version = "0.1.0", path = "../versa-prompt" }
 
 [dev-dependencies]
 anyhow = "1.0.71"
-dotenv = "0.15.0"
 env_logger = "0.10.0"
 futures-util = "0.3.28"
 

@@ -5,10 +5,10 @@ members = [
 	"versa-chain",
 	"versa-common",
 	"versa-memory",
+	"versa-middleware",
 	"versa-model",
 	"versa-prompt",
 	"versa-tool",
-	"versa-transformers",
 	"versa-workflow",
 ]
 

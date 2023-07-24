@@ -6,6 +6,9 @@
 //!
 //! For example, a Chain type could apply autoregression to the input of a model.
 
+mod error;
+pub mod simple_chain;
 mod traits;
 
+pub use error::*;
 pub use traits::*;

@@ -1,12 +1,12 @@
 use super::{ChatConfig, ChatMessages, CompletionConfig, OpenAIConfig};
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use strum_macros::Display;
 
 //-------------------------------------------------------------------------------------------------
 // Traits
 //-------------------------------------------------------------------------------------------------
 
-pub trait ModelKind {
+pub trait ModelKind: Clone + Serialize + DeserializeOwned {
     type Config: OpenAIConfig;
     type Input;
 }

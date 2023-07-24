@@ -7,6 +7,7 @@ use versa_prompt::{map, prompt, FinalizablePrompt};
 
 fn main() -> Result<()> {
     let mut prompt = prompt!("What is a good name for a company that makes {{product}}?");
+
     prompt.format(map!("product" => "children toys"))?;
 
     println!("Prompt: {prompt:?}");
@@ -15,6 +16,7 @@ fn main() -> Result<()> {
         "What is a good name for ",
         "a company that makes {{product}}?"
     ]);
+
     prompt.format(map!("product" => "children toys"))?;
 
     println!("Prompt: {prompt:?}");

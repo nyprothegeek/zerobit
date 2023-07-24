@@ -18,7 +18,18 @@ bench = false
 doctest = true
 
 [dependencies]
+serde = { version = "1.0.174", features = ["derive"] }
+thiserror = "1.0.44"
 versa-common = { version = "0.1.0", path = "../versa-common" }
+versa-model = { version = "0.1.0", path = "../versa-model" }
+versa-prompt = { version = "0.1.0", path = "../versa-prompt" }
+versa-middleware = { version = "0.1.0", path = "../versa-middleware" }
+async-trait = "0.1.72"
 
 [features]
 default = []
+
+[dev-dependencies]
+anyhow = "1.0.72"
+env_logger = "0.10.0"
+tokio = "1.29.1"

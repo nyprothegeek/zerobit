@@ -7,5 +7,5 @@ mod error;
 pub mod openai;
 mod traits;
 
-pub use error::ModelError;
-pub use traits::Model;
+pub use error::*;
+pub use traits::*;
