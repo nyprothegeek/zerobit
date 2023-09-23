@@ -1,0 +1,23 @@
+[package]
+name = "versa-workflow"
+version = "0.1.0"
+description = "The versa workflow engine"
+keywords = []
+categories = []
+license = "Apache-2.0"
+readme = "README.md"
+edition = "2021"
+rust-version = "1.64"
+documentation = "https://docs.rs/versa"
+repository = "https://github.com/nyprothegeek/versa"
+authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
+
+[lib]
+path = "src/lib.rs"
+bench = false
+doctest = true
+
+[dependencies]
+
+[features]
+default = []

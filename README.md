@@ -1,24 +1,24 @@
 <div align="center">
-  <a href="https://github.com/nyprothegeek/zerobit" target="_blank">
-    <img src="https://raw.githubusercontent.com/nyprothegeek/zerobit/main/assets/a_logo.png" alt="zerobit Logo" width="100"></img>
+  <a href="https://github.com/nyprothegeek/versa" target="_blank">
+    <img src="https://raw.githubusercontent.com/nyprothegeek/versa/main/assets/a_logo.png" alt="versa Logo" width="100"></img>
   </a>
 
-  <h1 align="center">zerobit</h1>
+  <h1 align="center">versa</h1>
 
   <p>
-    <a href="https://crates.io/crates/zerobit">
-      <img src="https://img.shields.io/crates/v/zerobit?label=crates" alt="Crate">
+    <a href="https://crates.io/crates/versa">
+      <img src="https://img.shields.io/crates/v/versa?label=crates" alt="Crate">
     </a>
-    <a href="https://codecov.io/gh/nyprothegeek/zerobit">
-      <img src="https://codecov.io/gh/nyprothegeek/zerobit/branch/main/graph/badge.svg?token=SOMETOKEN" alt="Code Coverage"/>
+    <a href="https://codecov.io/gh/nyprothegeek/versa">
+      <img src="https://codecov.io/gh/nyprothegeek/versa/branch/main/graph/badge.svg?token=SOMETOKEN" alt="Code Coverage"/>
     </a>
-    <a href="https://github.com/nyprothegeek/zerobit/actions?query=">
-      <img src="https://github.com/nyprothegeek/zerobit/actions/workflows/tests_and_checks.yml/badge.svg" alt="Build Status">
+    <a href="https://github.com/nyprothegeek/versa/actions?query=">
+      <img src="https://github.com/nyprothegeek/versa/actions/workflows/tests_and_checks.yml/badge.svg" alt="Build Status">
     </a>
-    <a href="https://github.com/nyprothegeek/zerobit/blob/main/LICENSE">
+    <a href="https://github.com/nyprothegeek/versa/blob/main/LICENSE">
       <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
     </a>
-    <a href="https://docs.rs/zerobit">
+    <a href="https://docs.rs/versa">
       <img src="https://img.shields.io/static/v1?label=Docs&message=docs.rs&color=blue" alt="Docs">
     </a>
     <a href="https://discord.gg/WqTEScR4">
@@ -46,7 +46,7 @@
 ### Using `cargo`
 
 ```console
-cargo install zerobit
+cargo install versa
 ```
 
 ## Testing the Project
@@ -129,7 +129,7 @@ These are references to specifications, talks and presentations, etc.
 
 This project is licensed under the [Apache License 2.0][apache-license].
 
-[apache-license]: https://github.com/nyprothegeek/zerobit/blob/main/LICENSE
+[apache-license]: https://github.com/nyprothegeek/versa/blob/main/LICENSE
 [cargo-expand]: https://github.com/dtolnay/cargo-expand
 [cargo-udeps]: https://github.com/est31/cargo-udeps
 [cargo-watch]: https://github.com/watchexec/cargo-watch

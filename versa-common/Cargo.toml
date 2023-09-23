@@ -1,0 +1,28 @@
+[package]
+name = "versa-common"
+version = "0.1.0"
+description = "A library for common objects across the versa project"
+keywords = []
+categories = []
+license = "Apache-2.0"
+readme = "README.md"
+edition = "2021"
+rust-version = "1.64"
+documentation = "https://docs.rs/versa"
+repository = "https://github.com/nyprothegeek/versa"
+authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
+
+[lib]
+path = "src/lib.rs"
+bench = false
+doctest = true
+
+[dependencies]
+async-trait = "0.1.71"
+serde = "1.0.164"
+inner-macros = { path = "inner-macros/", version = "0.1.0", optional = true }
+dotenv = "0.15.0"
+
+[features]
+default = []
+derive = ["dep:inner-macros"]

@@ -1,0 +1,39 @@
+[package]
+name = "versa-prompt"
+version = "0.1.0"
+description = "Language model prompt templating engine"
+keywords = []
+categories = []
+license = "Apache-2.0"
+readme = "README.md"
+edition = "2021"
+rust-version = "1.64"
+documentation = "https://docs.rs/versa"
+repository = "https://github.com/nyprothegeek/versa"
+authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
+
+[lib]
+path = "src/lib.rs"
+bench = false
+doctest = true
+
+[[bench]]
+name = "prompt"
+harness = false
+
+[dependencies]
+async-trait = "0.1.68"
+derive_builder = "0.12.0"
+proptest = { version = "1.2", optional = true }
+regex = "1.9.1"
+serde = { version = "1.0.164", features = ["derive"] }
+thiserror = "1.0.43"
+versa-common = { version = "0.1.0", path = "../versa-common" }
+
+[features]
+default = []
+test_utils = ["dep:proptest"]
+
+[dev-dependencies]
+anyhow = "1.0.71"
+criterion = "0.5.1"
