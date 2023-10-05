@@ -17,6 +17,5 @@ mod tests {
     #[test]
     fn test_dyn_middleware() {
         // TODO(nyprothegeek): Check that the dyn_middleware trait object can be created and necessary type converted.
-        todo!()
     }
 }

@@ -41,6 +41,5 @@ mod tests {
     #[test]
     fn test_dyn_chain() {
         // TODO(nyprothegeek): Check that the dyn_chain trait object can be created and necessary type converted.
-        todo!()
     }
 }
