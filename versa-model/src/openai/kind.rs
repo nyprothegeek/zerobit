@@ -15,7 +15,7 @@ pub trait ModelKind: Clone + Serialize + DeserializeOwned {
 // Types
 //-------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Display)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Display)]
 pub enum ChatModel {
     #[strum(serialize = "gpt-3.5-turbo-0613")]
     #[serde(rename = "gpt-3.5-turbo-0613")]
@@ -38,7 +38,7 @@ pub enum ChatModel {
     GPT3_5Turbo16k,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Display)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Display)]
 pub enum CompletionModel {
     #[strum(serialize = "babbage")]
     #[serde(rename = "babbage")]
