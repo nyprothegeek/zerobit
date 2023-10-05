@@ -1,4 +1,4 @@
-use crate::{Chain, ChainError};
+use crate::{Thread, ThreadError};
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use versa_common::traits::Config;
@@ -8,20 +8,20 @@ use versa_model::{Model, Output};
 // Types
 //-------------------------------------------------------------------------------------------------
 
-/// Simple Chain is a bare bones chain that does nothing insteresting by itself.
+/// Simple Thread is a bare bones chain that does nothing insteresting by itself.
 ///
 /// Without middlewares, it is just a wrapper around a model.
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct SimpleChain<M>
+pub struct SimpleThread<M>
 where
     M: Model,
 {
     #[serde(flatten)]
-    pub config: SimpleChainConfig<M>,
+    pub config: SimpleThreadConfig<M>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct SimpleChainConfig<M>
+pub struct SimpleThreadConfig<M>
 where
     M: Model,
 {
@@ -33,12 +33,12 @@ where
 // Methods
 //-------------------------------------------------------------------------------------------------
 
-impl<M> SimpleChain<M>
+impl<M> SimpleThread<M>
 where
     M: Model,
 {
     /// Creates a new simple chain using the given configuration.
-    pub fn with_config(config: SimpleChainConfig<M>) -> Self {
+    pub fn with_config(config: SimpleThreadConfig<M>) -> Self {
         Self { config }
     }
 
@@ -55,7 +55,7 @@ where
 
 // TODO(nyprothegeek): Implement middleware calls.
 #[async_trait(?Send)]
-impl<M> Chain<M> for SimpleChain<M>
+impl<M> Thread<M> for SimpleThread<M>
 where
     M: Model,
 {
@@ -65,7 +65,7 @@ where
     //     self.config.middlewares.iter()
     // }
 
-    async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ChainError>
+    async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ThreadError>
     where
         O: Output<M>,
     {
@@ -77,7 +77,7 @@ where
         &self,
         prompt: impl Into<M::Input>,
         config: M::Config,
-    ) -> Result<O, ChainError>
+    ) -> Result<O, ThreadError>
     where
         O: Output<M>,
     {
@@ -85,4 +85,4 @@ where
     }
 }
 
-impl<M> Config for SimpleChainConfig<M> where M: Model + Clone + Serialize + DeserializeOwned {}
+impl<M> Config for SimpleThreadConfig<M> where M: Model + Clone + Serialize + DeserializeOwned {}

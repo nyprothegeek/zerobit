@@ -3,11 +3,11 @@
     <img src="https://raw.githubusercontent.com/zerocore-ai/versa/main/assets/a_logo.png" alt="versa Logo" width="100"></img>
   </a>
 
-  <h1 align="center">zerobit</h1>
+  <h1 align="center">versa</h1>
 
   <p>
-    <a href="https://crates.io/crates/zerobit">
-      <img src="https://img.shields.io/crates/v/zerobit?label=crates" alt="Crate">
+    <a href="https://crates.io/crates/versa">
+      <img src="https://img.shields.io/crates/v/versa?label=crates" alt="Crate">
     </a>
     <a href="https://codecov.io/gh/zerocore-ai/versa">
       <img src="https://codecov.io/gh/zerocore-ai/versa/branch/main/graph/badge.svg?token=SOMETOKEN" alt="Code Coverage"/>
@@ -46,7 +46,7 @@
 ### Using `cargo`
 
 ```console
-cargo install zerobit
+cargo install versa
 ```
 
 ## Testing the Project

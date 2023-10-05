@@ -1,4 +1,4 @@
-use crate::ChainError;
+use crate::ThreadError;
 use async_trait::async_trait;
 use versa_model::{Model, Output};
 
@@ -7,7 +7,7 @@ use versa_model::{Model, Output};
 //-------------------------------------------------------------------------------------------------
 
 #[async_trait(?Send)]
-pub trait Chain<M>
+pub trait Thread<M>
 where
     M: Model,
 {
@@ -16,7 +16,7 @@ where
     //     I: Iterator<Item = Box<dyn DynMiddleware>>;
 
     /// Prompts the model with the given input.
-    async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ChainError>
+    async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ThreadError>
     where
         O: Output<M>;
 
@@ -25,12 +25,22 @@ where
         &self,
         prompt: impl Into<M::Input>,
         config: M::Config,
-    ) -> Result<O, ChainError>
+    ) -> Result<O, ThreadError>
     where
         O: Output<M>;
 }
 
-pub trait DynChain {}
+// TODO(appcypher): Implement common patterns.
+#[async_trait(?Send)]
+pub trait ThreadExt<M>: Thread<M>
+where
+    M: Model,
+{
+    // fn prompt_many...
+    // fn prompt_many_with_config...
+}
+
+pub trait DynThread {}
 
 //-------------------------------------------------------------------------------------------------
 // Tests

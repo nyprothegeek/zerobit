@@ -1731,23 +1731,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "versa-chain"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "env_logger",
- "futures",
- "serde",
- "thiserror",
- "tokio",
- "versa-common",
- "versa-middleware",
- "versa-model",
- "versa-prompt",
-]
-
-[[package]]
 name = "versa-cli"
 version = "0.1.0"
 dependencies = [
@@ -1824,6 +1807,23 @@ dependencies = [
  "serde",
  "thiserror",
  "versa-common",
+]
+
+[[package]]
+name = "versa-thread"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "env_logger",
+ "futures",
+ "serde",
+ "thiserror",
+ "tokio",
+ "versa-common",
+ "versa-middleware",
+ "versa-model",
+ "versa-prompt",
 ]
 
 [[package]]

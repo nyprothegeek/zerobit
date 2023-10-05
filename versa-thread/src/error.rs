@@ -6,7 +6,7 @@ use versa_model::ModelError;
 //-------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Error)]
-pub enum ChainError {
+pub enum ThreadError {
     #[error("model: {0}")]
     ModelError(#[from] ModelError),
 }
