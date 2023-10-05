@@ -1748,6 +1748,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "versa-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "env_logger",
+ "log",
+ "thiserror",
+ "tokio",
+ "versa-common",
+]
+
+[[package]]
 name = "versa-common"
 version = "0.1.0"
 dependencies = [

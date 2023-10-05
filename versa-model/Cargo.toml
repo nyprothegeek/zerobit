@@ -9,8 +9,28 @@ readme = "README.md"
 edition = "2021"
 rust-version = "1.64"
 documentation = "https://docs.rs/versa"
-repository = "https://github.com/nyprothegeek/versa"
+repository = "https://github.com/zerocore-ai/versa"
 authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
+
+[[example]]
+name = "model_basic"
+path = "examples/model_basic.rs"
+required-features = ["openai"]
+
+[[example]]
+name = "model_config"
+path = "examples/model_config.rs"
+required-features = ["openai"]
+
+[[example]]
+name = "model_prompt"
+path = "examples/model_prompt.rs"
+required-features = ["openai"]
+
+[[example]]
+name = "model_stream"
+path = "examples/model_stream.rs"
+required-features = ["openai"]
 
 [lib]
 path = "src/lib.rs"
@@ -41,5 +61,6 @@ futures-util = "0.3.28"
 
 [features]
 default = []
+openai = []
 test_utils = ["proptest"]
 log = ["dep:log"]

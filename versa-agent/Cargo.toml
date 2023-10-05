@@ -9,7 +9,7 @@ readme = "README.md"
 edition = "2021"
 rust-version = "1.64"
 documentation = "https://docs.rs/versa"
-repository = "https://github.com/nyprothegeek/versa"
+repository = "https://github.com/zerocore-ai/versa"
 authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
 
 [lib]

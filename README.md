@@ -1,6 +1,6 @@
 <div align="center">
-  <a href="https://github.com/appcypher/zerobit" target="_blank">
-    <img src="https://raw.githubusercontent.com/appcypher/zerobit/main/assets/a_logo.png" alt="zerobit Logo" width="100"></img>
+  <a href="https://github.com/zerocore-ai/versa" target="_blank">
+    <img src="https://raw.githubusercontent.com/zerocore-ai/versa/main/assets/a_logo.png" alt="versa Logo" width="100"></img>
   </a>
 
   <h1 align="center">zerobit</h1>
@@ -9,13 +9,16 @@
     <a href="https://crates.io/crates/zerobit">
       <img src="https://img.shields.io/crates/v/zerobit?label=crates" alt="Crate">
     </a>
-    <a href="https://codecov.io/gh/appcypher/zerobit">
-      <img src="https://codecov.io/gh/appcypher/zerobit/branch/main/graph/badge.svg?token=SOMETOKEN" alt="Code Coverage"/>
+    <a href="https://codecov.io/gh/zerocore-ai/versa">
+      <img src="https://codecov.io/gh/zerocore-ai/versa/branch/main/graph/badge.svg?token=SOMETOKEN" alt="Code Coverage"/>
     </a>
-    <a href="https://github.com/appcypher/zerobit/actions?query=">
-      <img src="https://github.com/appcypher/zerobit/actions/workflows/tests_and_checks.yml/badge.svg" alt="Build Status">
+    <a href="https://github.com/zerocore-ai/versa/actions?query=">
+      <img src="https://github.com/zerocore-ai/versa/actions/workflows/tests_and_checks.yml/badge.svg" alt="Build Status">
     </a>
-    <a href="https://docs.rs/zerobit">
+    <a href="https://github.com/zerocore-ai/versa/blob/main/LICENSE">
+      <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
+    </a>
+    <a href="https://docs.rs/versa">
       <img src="https://img.shields.io/static/v1?label=Docs&message=docs.rs&color=blue" alt="Docs">
     </a>
     <a href="https://discord.gg/WqTEScR4">
@@ -126,7 +129,7 @@ These are references to specifications, talks and presentations, etc.
 
 This project is licensed under the [Apache License 2.0][apache-license].
 
-[apache-license]: https://github.com/appcypher/zerobit/blob/main/LICENSE
+[apache-license]: https://github.com/zerocore-ai/versa/blob/main/LICENSE
 [cargo-expand]: https://github.com/dtolnay/cargo-expand
 [cargo-udeps]: https://github.com/est31/cargo-udeps
 [cargo-watch]: https://github.com/watchexec/cargo-watch

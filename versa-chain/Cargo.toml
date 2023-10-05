@@ -9,7 +9,7 @@ readme = "README.md"
 edition = "2021"
 rust-version = "1.64"
 documentation = "https://docs.rs/versa"
-repository = "https://github.com/nyprothegeek/versa"
+repository = "https://github.com/zerocore-ai/versa"
 authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
 
 [lib]
@@ -21,7 +21,9 @@ doctest = true
 serde = { version = "1.0.179", features = ["derive"] }
 thiserror = "1.0.49"
 versa-common = { version = "0.1.0", path = "../versa-common" }
-versa-model = { version = "0.1.0", path = "../versa-model" }
+versa-model = { version = "0.1.0", path = "../versa-model", features = [
+    "openai",
+] }
 versa-prompt = { version = "0.1.0", path = "../versa-prompt" }
 versa-middleware = { version = "0.1.0", path = "../versa-middleware" }
 async-trait = "0.1.73"

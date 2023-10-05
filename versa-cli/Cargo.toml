@@ -1,7 +1,7 @@
 [package]
-name = "versa-workflow"
+name = "versa-cli"
 version = "0.1.0"
-description = "The versa workflow engine"
+description = "A library for working with AI models"
 keywords = []
 categories = []
 license = "Apache-2.0"
@@ -12,12 +12,24 @@ documentation = "https://docs.rs/versa"
 repository = "https://github.com/zerocore-ai/versa"
 authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
 
+[[bin]]
+name = "versa"
+path = "src/main.rs"
+
 [lib]
 path = "src/lib.rs"
 bench = false
 doctest = true
 
 [dependencies]
+log = { version = "0.4.19", optional = true }
+thiserror = "1.0.40"
+tokio = { version = "1.29.1", features = ["full"] }
+versa-common = { version = "0.1.0", path = "../versa-common" }
+
+[dev-dependencies]
+anyhow = "1.0.71"
+env_logger = "0.10.0"
 
 [features]
 default = []

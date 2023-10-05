@@ -13,7 +13,7 @@ where
 {
     // fn get_middlewares<T, I>(&self) -> I
     // where
-    //      I: IntoIterator<Item = Box<dyn DynMiddleware>>>;
+    //     I: Iterator<Item = Box<dyn DynMiddleware>>;
 
     /// Prompts the model with the given input.
     async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ChainError>

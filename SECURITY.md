@@ -13,5 +13,5 @@ Github respository's [security portal][sec-advisories] and and the
 [RustSec advisory database][rustsec-db].
 
 [rustsec-db]: https://github.com/RustSec/advisory-db
-[sec-advisories]: https://github.com/nyprothegeek/versa/security/advisories
+[sec-advisories]: https://github.com/zerocore-ai/versa/security/advisories
 [support-email]: mailto:steve@orble.ai
