@@ -31,6 +31,6 @@ futures = "0.3.28"
 default = []
 
 [dev-dependencies]
-anyhow = "1.0.72"
+anyhow = "1.0.75"
 env_logger = "0.10.0"
 tokio = "1.29.1"

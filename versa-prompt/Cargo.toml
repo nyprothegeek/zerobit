@@ -35,5 +35,5 @@ default = []
 test_utils = ["dep:proptest"]
 
 [dev-dependencies]
-anyhow = "1.0.71"
+anyhow = "1.0.75"
 criterion = "0.5.1"

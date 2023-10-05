@@ -35,7 +35,7 @@ versa-common = { version = "0.1.0", path = "../versa-common" }
 versa-prompt = { version = "0.1.0", path = "../versa-prompt" }
 
 [dev-dependencies]
-anyhow = "1.0.71"
+anyhow = "1.0.75"
 env_logger = "0.10.0"
 futures-util = "0.3.28"
 
