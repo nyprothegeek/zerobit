@@ -18,7 +18,7 @@ bench = false
 doctest = true
 
 [dependencies]
-async-trait = "0.1.68"
+async-trait = "0.1.73"
 futures = "0.3.28"
 log = { version = "0.4.19", optional = true }
 pin-project-lite = "0.2.13"
