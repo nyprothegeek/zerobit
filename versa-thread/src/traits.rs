@@ -49,7 +49,7 @@ pub trait DynThread {}
 #[cfg(test)]
 mod tests {
     #[test]
-    fn test_dyn_chain() {
-        // TODO(nyprothegeek): Check that the dyn_chain trait object can be created and necessary type converted.
+    fn test_dyn_thread() {
+        // TODO(nyprothegeek): Check that the dyn_thread trait object can be created and necessary type converted.
     }
 }

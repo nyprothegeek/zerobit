@@ -6,8 +6,8 @@
 //!
 //! For example, a Thread type could apply autoregression to the input of a model.
 
+pub mod basic_thread;
 mod error;
-pub mod simple_thread;
 mod traits;
 
 pub use error::*;

@@ -2,7 +2,7 @@ use anyhow::Result;
 use versa_common::{utils, Env};
 use versa_model::openai::OpenAIModel;
 use versa_prompt::{prompt, FinalizablePrompt};
-use versa_thread::{simple_thread::SimpleThread, Thread};
+use versa_thread::{basic_thread::BasicThread, Thread};
 
 //-------------------------------------------------------------------------------------------------
 // Main
@@ -13,9 +13,9 @@ async fn main() -> Result<()> {
     utils::load_env(Env::Prod);
     env_logger::init();
 
-    let chain = SimpleThread::default().model(OpenAIModel::default());
+    let thread = BasicThread::default().model(OpenAIModel::default());
 
-    println!("Thread: {chain:#?}");
+    println!("Thread: {thread:#?}");
 
     let prompt = prompt!("Hello there!");
 
@@ -23,7 +23,7 @@ async fn main() -> Result<()> {
 
     let final_prompt = prompt.finalize()?;
 
-    let output: String = chain.prompt(final_prompt).await?;
+    let output: String = thread.prompt(final_prompt).await?;
 
     println!("Output: {output:#?}");
 

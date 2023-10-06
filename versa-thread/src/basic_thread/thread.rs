@@ -8,20 +8,20 @@ use versa_model::{Model, Output};
 // Types
 //-------------------------------------------------------------------------------------------------
 
-/// Simple Thread is a bare bones chain that does nothing insteresting by itself.
+/// BasicThread is a bare bones thread that does nothing insteresting by itself.
 ///
 /// Without middlewares, it is just a wrapper around a model.
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct SimpleThread<M>
+pub struct BasicThread<M>
 where
     M: Model,
 {
     #[serde(flatten)]
-    pub config: SimpleThreadConfig<M>,
+    pub config: BasicThreadConfig<M>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct SimpleThreadConfig<M>
+pub struct BasicThreadConfig<M>
 where
     M: Model,
 {
@@ -33,16 +33,16 @@ where
 // Methods
 //-------------------------------------------------------------------------------------------------
 
-impl<M> SimpleThread<M>
+impl<M> BasicThread<M>
 where
     M: Model,
 {
-    /// Creates a new simple chain using the given configuration.
-    pub fn with_config(config: SimpleThreadConfig<M>) -> Self {
+    /// Creates a new simple thread using the given configuration.
+    pub fn with_config(config: BasicThreadConfig<M>) -> Self {
         Self { config }
     }
 
-    /// Sets the model for the chain.
+    /// Sets the model for the thread.
     pub fn model(mut self, model: M) -> Self {
         self.config.model = model;
         self
@@ -55,7 +55,7 @@ where
 
 // TODO(nyprothegeek): Implement middleware calls.
 #[async_trait(?Send)]
-impl<M> Thread<M> for SimpleThread<M>
+impl<M> Thread<M> for BasicThread<M>
 where
     M: Model,
 {
@@ -85,4 +85,4 @@ where
     }
 }
 
-impl<M> Config for SimpleThreadConfig<M> where M: Model + Clone + Serialize + DeserializeOwned {}
+impl<M> Config for BasicThreadConfig<M> where M: Model + Clone + Serialize + DeserializeOwned {}
