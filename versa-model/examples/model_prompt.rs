@@ -30,7 +30,9 @@ async fn main() -> Result<()> {
     let prompt = prompt!("What is a good name for a company that makes {{product}}?");
 
     let model = OpenAICompletionModel::default();
-    let output: String = model.prompt(prompt.resolve(map!("product" => "children toys"))?).await?;
+    let output: String = model
+        .prompt(prompt.resolve(map!("product" => "children toys"))?)
+        .await?;
 
     println!("completion model output = {output:#?}");
 
