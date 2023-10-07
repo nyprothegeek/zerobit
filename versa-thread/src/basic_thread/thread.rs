@@ -1,7 +1,9 @@
 use crate::{Thread, ThreadError};
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+// use std::sync::Arc;
 use versa_common::traits::Config;
+// use versa_middleware::Middleware;
 use versa_model::{Model, Output};
 
 //-------------------------------------------------------------------------------------------------
@@ -25,7 +27,9 @@ pub struct BasicThreadConfig<M>
 where
     M: Model,
 {
-    // middlewares: Vec<Box<dyn DynMiddleware>>,
+    // TODO(appcypher): Figure Serialize issue. Figure Output issue.
+    // pub input_middlewares: Vec<Arc<dyn Middleware<Meta = (), Value = M::Input>>>,
+    // pub output_middlewares: Vec<Arc<dyn Middleware<Meta = (), Value = Output<M>>>>,
     pub model: M,
 }
 
@@ -59,12 +63,6 @@ impl<M> Thread<M> for BasicThread<M>
 where
     M: Model,
 {
-    // fn get_middlewares<T, I>(&self) -> I
-    // where
-    //      I: IntoIterator<Item = Box<dyn DynMiddleware>> {
-    //     self.config.middlewares.iter()
-    // }
-
     async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ThreadError>
     where
         O: Output<M>,
@@ -86,3 +84,7 @@ where
 }
 
 impl<M> Config for BasicThreadConfig<M> where M: Model + Clone + Serialize + DeserializeOwned {}
+
+//-------------------------------------------------------------------------------------------------
+// Tests
+//-------------------------------------------------------------------------------------------------

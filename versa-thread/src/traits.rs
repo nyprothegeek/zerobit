@@ -11,10 +11,6 @@ pub trait Thread<M>
 where
     M: Model,
 {
-    // fn get_middlewares<T, I>(&self) -> I
-    // where
-    //     I: Iterator<Item = Box<dyn DynMiddleware>>;
-
     /// Prompts the model with the given input.
     async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ThreadError>
     where
@@ -40,6 +36,7 @@ where
     // fn prompt_many_with_config...
 }
 
+// TODO(appcypher): Implement an object-safe version of Thread trait.
 pub trait DynThread {}
 
 //-------------------------------------------------------------------------------------------------

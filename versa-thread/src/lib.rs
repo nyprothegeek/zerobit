@@ -1,10 +1,11 @@
 //! # Thread
 //!
 //! Threads are an abstraction higher than versa Models.
-//! Threads are suited for continous interaction with a model.
-//! With Threads, there is a focus on the kind of processing that is done on the intermediate input and output of a model.
+//! They are suited for continous conversation with a model.
+//! This type of interaction is usually referred to as `Chains` in other libraries.
 //!
-//! For example, a Thread type could apply autoregression to the input of a model.
+//! Threads, however, allow you to add custom middlewares that can transform the input and output of a model
+//! and one of the common things to do with a thread is to collect conversation history and use it as input for the next prompt.
 
 pub mod basic_thread;
 mod error;

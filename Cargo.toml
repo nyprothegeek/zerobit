@@ -8,6 +8,7 @@ members = [
 	"versa-middleware",
 	"versa-model",
 	"versa-prompt",
+	"versa-store",
 	"versa-thread",
 	"versa-tool",
 	"versa-workflow",
