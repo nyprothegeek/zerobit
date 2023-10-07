@@ -32,13 +32,7 @@ pub enum OpenAIError {
 }
 
 #[derive(Debug, Deserialize, Error)]
-#[error("{error}")]
 pub struct APIError {
-    pub error: InnerError,
-}
-
-#[derive(Debug, Deserialize, Error)]
-pub struct InnerError {
     pub code: Option<String>,
     pub message: String,
     pub param: Option<String>,
@@ -49,9 +43,9 @@ pub struct InnerError {
 // Trait Implementations
 //-------------------------------------------------------------------------------------------------
 
-impl Display for InnerError {
+impl Display for APIError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("InnerError")
+        f.debug_struct("APIError")
             .field("code", &self.code)
             .field("message", &self.message)
             .field("param", &self.param)

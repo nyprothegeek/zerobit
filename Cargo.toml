@@ -2,12 +2,14 @@
 members = [
 	"versa",
 	"versa-agent",
-	"versa-chain",
+	"versa-cli",
 	"versa-common",
 	"versa-memory",
 	"versa-middleware",
 	"versa-model",
 	"versa-prompt",
+	"versa-store",
+	"versa-thread",
 	"versa-tool",
 	"versa-workflow",
 ]

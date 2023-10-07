@@ -11,10 +11,7 @@ pub trait FinalizablePrompt {
     /// Checks if the prompt has unresolved variables.
     fn has_unresolved_vars(&self) -> Result<bool, PromptError>;
 
-    /// Replaces all occurrences of a given variable with the provided value.
-    fn resolve_var(&mut self, var: &str, value: &str) -> Result<(), PromptError>;
-
-    /// Changes occurences of the given variables to the given values if they exist.
+    /// Replaces occurences of the given variables to the given values if they exist.
     fn format(&mut self, map: HashMap<&str, &str>) -> Result<(), PromptError>;
 
     /// Resolves into its final form.

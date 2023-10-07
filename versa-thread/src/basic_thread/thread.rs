@@ -1,31 +1,35 @@
-use crate::{Chain, ChainError};
+use crate::{Thread, ThreadError};
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+// use std::sync::Arc;
 use versa_common::traits::Config;
+// use versa_middleware::Middleware;
 use versa_model::{Model, Output};
 
 //-------------------------------------------------------------------------------------------------
 // Types
 //-------------------------------------------------------------------------------------------------
 
-/// Simple Chain is a bare bones chain that does nothing insteresting by itself.
+/// BasicThread is a bare bones thread that does nothing insteresting by itself.
 ///
 /// Without middlewares, it is just a wrapper around a model.
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct SimpleChain<M>
+pub struct BasicThread<M>
 where
     M: Model,
 {
     #[serde(flatten)]
-    pub config: SimpleChainConfig<M>,
+    pub config: BasicThreadConfig<M>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct SimpleChainConfig<M>
+pub struct BasicThreadConfig<M>
 where
     M: Model,
 {
-    // middlewares: Vec<Box<dyn DynMiddleware>>,
+    // TODO(appcypher): Figure Serialize issue. Figure Output issue.
+    // pub input_middlewares: Vec<Arc<dyn Middleware<Meta = (), Value = M::Input>>>,
+    // pub output_middlewares: Vec<Arc<dyn Middleware<Meta = (), Value = Output<M>>>>,
     pub model: M,
 }
 
@@ -33,16 +37,16 @@ where
 // Methods
 //-------------------------------------------------------------------------------------------------
 
-impl<M> SimpleChain<M>
+impl<M> BasicThread<M>
 where
     M: Model,
 {
-    /// Creates a new simple chain using the given configuration.
-    pub fn with_config(config: SimpleChainConfig<M>) -> Self {
+    /// Creates a new simple thread using the given configuration.
+    pub fn with_config(config: BasicThreadConfig<M>) -> Self {
         Self { config }
     }
 
-    /// Sets the model for the chain.
+    /// Sets the model for the thread.
     pub fn model(mut self, model: M) -> Self {
         self.config.model = model;
         self
@@ -55,17 +59,11 @@ where
 
 // TODO(nyprothegeek): Implement middleware calls.
 #[async_trait(?Send)]
-impl<M> Chain<M> for SimpleChain<M>
+impl<M> Thread<M> for BasicThread<M>
 where
     M: Model,
 {
-    // fn get_middlewares<T, I>(&self) -> I
-    // where
-    //      I: IntoIterator<Item = Box<dyn DynMiddleware>> {
-    //     self.config.middlewares.iter()
-    // }
-
-    async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ChainError>
+    async fn prompt<O>(&self, prompt: impl Into<M::Input>) -> Result<O, ThreadError>
     where
         O: Output<M>,
     {
@@ -77,7 +75,7 @@ where
         &self,
         prompt: impl Into<M::Input>,
         config: M::Config,
-    ) -> Result<O, ChainError>
+    ) -> Result<O, ThreadError>
     where
         O: Output<M>,
     {
@@ -85,4 +83,8 @@ where
     }
 }
 
-impl<M> Config for SimpleChainConfig<M> where M: Model + Clone + Serialize + DeserializeOwned {}
+impl<M> Config for BasicThreadConfig<M> where M: Model + Clone + Serialize + DeserializeOwned {}
+
+//-------------------------------------------------------------------------------------------------
+// Tests
+//-------------------------------------------------------------------------------------------------

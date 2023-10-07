@@ -9,10 +9,9 @@ use versa_common::{pattern::Pattern, traits::Config};
 //-------------------------------------------------------------------------------------------------
 
 pub type Tags = Vec<Tag>;
-pub type Prompt = PromptData<String>;
-pub type PromptList = PromptData<Vec<(String, Tags)>>;
-pub type ResolvedPrompt = ResolvedPromptData<String>;
-pub type ResolvedPromptList = ResolvedPromptData<Vec<(String, Tags)>>;
+pub type Prompt = PromptTemplate<String>;
+pub type PromptList = PromptTemplate<Vec<(String, Tags)>>;
+pub type FinalPromptList = FinalPrompt<Vec<(String, Tags)>>;
 
 //-------------------------------------------------------------------------------------------------
 // Types
@@ -22,13 +21,13 @@ pub type ResolvedPromptList = ResolvedPromptData<Vec<(String, Tags)>>;
 ///
 /// A prompt can either be resolved or unresolved.
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
-pub struct PromptData<T> {
+pub struct PromptTemplate<T> {
     data: T,
 }
 
 /// A resolved prompt is a prompt that has been resolved.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ResolvedPromptData<T>(PromptData<T>);
+pub struct FinalPrompt<T = String>(PromptTemplate<T>);
 
 /// A tag that describes the prompt message identity.
 /// This becomes useful later when converting prompts to strings.
@@ -63,6 +62,12 @@ impl Prompt {
             data: message.into(),
         }
     }
+
+    fn resolve_var(&mut self, var: &str, value: &str) -> Result<(), PromptError> {
+        let re = Regex::new(&format!(r"\{{\{{(?<var>{})\}}\}}", var))?;
+        self.data = re.replace_all(&self.data, value).into();
+        Ok(())
+    }
 }
 
 impl PromptList {
@@ -84,9 +89,20 @@ impl PromptList {
             iter: self.data.iter(),
         }
     }
+
+    fn resolve_var(&mut self, var: &str, value: &str) -> Result<(), PromptError> {
+        let re = Regex::new(&format!(r"\{{\{{(?<var>{})\}}\}}", var))?;
+        let messages = std::mem::take(&mut self.data);
+        for (message, tags) in messages {
+            self.data
+                .push((re.replace_all(&message, value).into(), tags));
+        }
+
+        Ok(())
+    }
 }
 
-impl ResolvedPromptList {
+impl FinalPromptList {
     /// Returns an iterator over the messages of the prompt.
     pub fn iter(&self) -> PromptListIter {
         PromptListIter {
@@ -100,7 +116,7 @@ impl ResolvedPromptList {
 //-------------------------------------------------------------------------------------------------
 
 impl FinalizablePrompt for Prompt {
-    type FinalizedPrompt = ResolvedPrompt;
+    type FinalizedPrompt = FinalPrompt;
 
     fn has_unresolved_vars(&self) -> Result<bool, PromptError> {
         let re = Regex::new(r"\{\{(?<var>[a-zA-Z_][a-zA-Z0-9_]*)\}\}")?;
@@ -109,12 +125,6 @@ impl FinalizablePrompt for Prompt {
         }
 
         Ok(false)
-    }
-
-    fn resolve_var(&mut self, var: &str, value: &str) -> Result<(), PromptError> {
-        let re = Regex::new(&format!(r"\{{\{{(?<var>{})\}}\}}", var))?;
-        self.data = re.replace_all(&self.data, value).into();
-        Ok(())
     }
 
     fn format(&mut self, map: HashMap<&str, &str>) -> Result<(), PromptError> {
@@ -129,12 +139,12 @@ impl FinalizablePrompt for Prompt {
             return Err(PromptError::UnresolvedVars);
         }
 
-        Ok(ResolvedPromptData(self))
+        Ok(FinalPrompt(self))
     }
 }
 
 impl FinalizablePrompt for PromptList {
-    type FinalizedPrompt = ResolvedPromptList;
+    type FinalizedPrompt = FinalPromptList;
 
     fn has_unresolved_vars(&self) -> Result<bool, PromptError> {
         let re = Regex::new(r"\{\{(?<var>[a-zA-Z_][a-zA-Z0-9_]*)\}\}")?;
@@ -147,17 +157,6 @@ impl FinalizablePrompt for PromptList {
         Ok(false)
     }
 
-    fn resolve_var(&mut self, var: &str, value: &str) -> Result<(), PromptError> {
-        let re = Regex::new(&format!(r"\{{\{{(?<var>{})\}}\}}", var))?;
-        let messages = std::mem::take(&mut self.data);
-        for (message, tags) in messages {
-            self.data
-                .push((re.replace_all(&message, value).into(), tags));
-        }
-
-        Ok(())
-    }
-
     fn format(&mut self, map: HashMap<&str, &str>) -> Result<(), PromptError> {
         for (var, value) in map {
             self.resolve_var(var, value)?;
@@ -170,7 +169,7 @@ impl FinalizablePrompt for PromptList {
             return Err(PromptError::UnresolvedVars);
         }
 
-        Ok(ResolvedPromptData(self))
+        Ok(FinalPrompt(self))
     }
 }
 
@@ -191,7 +190,7 @@ impl<'a> Iterator for PromptListIter<'a> {
     }
 }
 
-impl IntoIterator for ResolvedPromptList {
+impl IntoIterator for FinalPromptList {
     type Item = (String, Vec<Tag>);
     type IntoIter = vec::IntoIter<Self::Item>;
 
@@ -204,12 +203,12 @@ impl Config for Prompt {}
 
 impl Config for PromptList {}
 
-impl FinalizedPrompt for ResolvedPrompt {}
+impl FinalizedPrompt for FinalPrompt {}
 
-impl FinalizedPrompt for ResolvedPromptList {}
+impl FinalizedPrompt for FinalPromptList {}
 
-impl From<ResolvedPromptList> for String {
-    fn from(_: ResolvedPromptList) -> Self {
+impl From<FinalPromptList> for String {
+    fn from(_: FinalPromptList) -> Self {
         // TODO(nyprothegeek): Combine all the messages into one with roles added.
         todo!()
     }
@@ -221,8 +220,8 @@ impl From<Prompt> for String {
     }
 }
 
-impl From<ResolvedPrompt> for String {
-    fn from(prompt: ResolvedPrompt) -> Self {
+impl From<FinalPrompt> for String {
+    fn from(prompt: FinalPrompt) -> Self {
         prompt.0.data
     }
 }

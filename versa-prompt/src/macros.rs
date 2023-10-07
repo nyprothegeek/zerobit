@@ -2,7 +2,7 @@
 // Macros
 //-------------------------------------------------------------------------------------------------
 
-// TODO(nyprothegeek): Implement output which is simply grabbing a
+// TODO(appcypher): Implement output part of the macro.
 /// This macro is used to create a prompt.
 #[macro_export]
 macro_rules! prompt {

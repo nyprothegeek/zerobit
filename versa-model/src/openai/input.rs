@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
-use versa_prompt::{ResolvedPrompt, ResolvedPromptList, Role, Tag};
+use versa_prompt::{FinalPrompt, FinalPromptList, Role, Tag};
 
 //-------------------------------------------------------------------------------------------------
 // Types
@@ -66,8 +66,8 @@ impl From<ChatMessages> for Vec<ChatMessage> {
     }
 }
 
-impl From<ResolvedPromptList> for ChatMessages {
-    fn from(list: ResolvedPromptList) -> Self {
+impl From<FinalPromptList> for ChatMessages {
+    fn from(list: FinalPromptList) -> Self {
         let mut messages = vec![];
         for (content, tags) in list.into_iter() {
             let role = tags
@@ -88,8 +88,8 @@ impl From<ResolvedPromptList> for ChatMessages {
     }
 }
 
-impl From<ResolvedPrompt> for ChatMessages {
-    fn from(prompt: ResolvedPrompt) -> Self {
+impl From<FinalPrompt> for ChatMessages {
+    fn from(prompt: FinalPrompt) -> Self {
         Self(vec![ChatMessage {
             role: ChatRole::User,
             content: prompt.into(),

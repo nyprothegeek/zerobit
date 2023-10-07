@@ -1,7 +1,7 @@
 [package]
 name = "versa-memory"
 version = "0.1.0"
-description = "A library for working with memory"
+description = "A library for working with memories"
 keywords = []
 categories = []
 license = "Apache-2.0"
@@ -9,7 +9,7 @@ readme = "README.md"
 edition = "2021"
 rust-version = "1.64"
 documentation = "https://docs.rs/versa"
-repository = "https://github.com/nyprothegeek/versa"
+repository = "https://github.com/zerocore-ai/versa"
 authors = ["Stephen Akinyemi <steveakinyemi@gmail.com>"]
 
 [lib]
@@ -19,11 +19,7 @@ doctest = true
 
 [dependencies]
 anyhow = "1.0"
-async-trait = "0.1.73"
-derive_builder = "0.12.0"
-proptest = { version = "1.2", optional = true }
 serde = { version = "1.0.179", features = ["derive"] }
 
 [features]
 default = []
-test_utils = ["proptest"]

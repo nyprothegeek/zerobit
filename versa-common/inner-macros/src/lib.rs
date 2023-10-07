@@ -8,3 +8,8 @@ use proc_macro::TokenStream;
 pub fn describe(_attr: TokenStream, _item: TokenStream) -> TokenStream {
     todo!("describe")
 }
+
+#[proc_macro_attribute]
+pub fn tool(_attr: TokenStream, _item: TokenStream) -> TokenStream {
+    todo!("tool")
+}
