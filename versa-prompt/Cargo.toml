@@ -27,7 +27,7 @@ derive_builder = "0.12.0"
 proptest = { version = "1.3", optional = true }
 regex = "1.9.1"
 serde = { version = "1.0.189", features = ["derive"] }
-thiserror = "1.0.49"
+thiserror = "1.0.50"
 versa-common = { version = "0.1.0", path = "../versa-common" }
 
 [features]
