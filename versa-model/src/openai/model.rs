@@ -354,7 +354,7 @@ impl Output<OpenAIChatModel> for String {
 
         Ok(response
             .choices
-            .get(0)
+            .first()
             .ok_or(OpenAIError::CompletionMissing)?
             .message
             .content
@@ -399,7 +399,7 @@ impl Output<OpenAICompletionModel> for String {
 
         Ok(response
             .choices
-            .get(0)
+            .first()
             .ok_or(OpenAIError::CompletionMissing)?
             .text
             .clone())
