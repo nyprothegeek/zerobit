@@ -19,7 +19,7 @@ doctest = true
 
 [dependencies]
 async-trait = "0.1.74"
-futures = "0.3.28"
+futures = "0.3.30"
 log = { version = "0.4.20", optional = true }
 pin-project-lite = "0.2.13"
 proptest = { version = "1.3", optional = true }

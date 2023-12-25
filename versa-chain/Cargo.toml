@@ -25,7 +25,7 @@ versa-model = { version = "0.1.0", path = "../versa-model" }
 versa-prompt = { version = "0.1.0", path = "../versa-prompt" }
 versa-middleware = { version = "0.1.0", path = "../versa-middleware" }
 async-trait = "0.1.74"
-futures = "0.3.28"
+futures = "0.3.30"
 
 [features]
 default = []
